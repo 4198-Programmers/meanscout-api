@@ -1,6 +1,6 @@
 use std::path::Path;
 use std::fs::File;
-use std::io::{Write, prelude::*, BufReader};
+use std::io::Write;
 use serde::{Serialize, Deserialize};
 use std::borrow::Cow;
 use std::fs;
@@ -46,7 +46,7 @@ fn init_files() {
 /// Checks if file exists
 pub fn file_exists(file: &str) -> bool {
     return Path::new(file).exists()
-  }
+}
 
 pub fn append_csv(content: &str) {
     init_files();
