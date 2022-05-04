@@ -1,9 +1,7 @@
 #[macro_use] extern crate rocket;
-use rocket::tokio::time::{sleep, Duration};
-use rocket::serde::json::{Json, Value, json};
+use rocket::serde::json::Json;
 mod csvstuff;
 use rocket::fs::NamedFile;
-use std::path::{PathBuf, Path};
 
 #[get("/")]
 async fn index() -> &'static str {
@@ -23,7 +21,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
         owned_string.push_str(&thing)
     }
     csvstuff::append_csv(&owned_string); 
-    format!("{}", owned_string)
+    String::from("Added Data!")
 }
 
 #[get("/scouting")]
