@@ -64,12 +64,3 @@ pub fn wipe_data() {
     let _ = fs::write("data.csv", "");
     return
   }
-
-pub fn read_file(path: impl AsRef<Path>) -> Vec<String> {
-    let file = File::open(&path).expect("Cannot open file");
-
-    let buf = BufReader::new(file);
-    buf.lines()
-        .map(|l| l.expect("Could not parse line"))
-        .collect()
-}
