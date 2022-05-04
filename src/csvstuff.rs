@@ -63,4 +63,4 @@ pub fn append_csv(content: &str) {
 pub fn wipe_data() {
     let _ = fs::write("data.csv", "");
     return
-  }
+}
