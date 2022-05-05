@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use std::borrow::Cow;
 use std::fs;
 
+/// Struct for the form data
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct FormData<'r> {
@@ -29,13 +30,14 @@ pub struct FormData<'r> {
     pub password: Cow<'r, str>,
 }
 
+/// Just a test struct
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct FormDataTest<'r> {
     test: Cow<'r, str>
 }
 
-/// Initializing the users and loginpage files
+/// Initializing the data file
 fn init_files() {
     if !file_exists("data.csv") {
         let _userfile = File::create("data.csv");
@@ -48,6 +50,7 @@ pub fn file_exists(file: &str) -> bool {
     return Path::new(file).exists()
 }
 
+/// Adds to data.csv
 pub fn append_csv(content: &str) {
     init_files();
     let mut file = fs::OpenOptions::new()
