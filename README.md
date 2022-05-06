@@ -7,7 +7,7 @@ To build it from source you first need to have [rust](https://rust-lang.org) ins
 When it is done building, the binary will be located in `/target/debug/` as `meanapi`
 
 ## How to set ip to run on
-To change the ip to run on just change the address variable in `Rocket.toml`
+To change the ip to run on just change the address variable in `Rocket.toml` before building
 ```toml
 [global]
 address = "127.0.0.1" # like this
