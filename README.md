@@ -10,6 +10,7 @@ When it is done building, the binary will be located in `/target/debug/` as `mea
 To change the ip to run on just change the address variable in [Rocket.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/Rocket.toml) before building
 ```toml
 [global]
-address = "127.0.0.1" # like this
+address = "0.0.0.0" # Before
+address = "127.0.0.1" # After
 port = 80
 ```
