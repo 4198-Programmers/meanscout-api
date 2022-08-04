@@ -3,6 +3,7 @@ use rocket::serde::json::Json;
 mod csvstuff;
 use rocket::fs::NamedFile;
 
+
 #[get("/")]
 async fn index() -> &'static str {
     "Hello, world!"
@@ -38,7 +39,12 @@ async fn scouting_delete() -> String {
 
 #[rocket::main]
 async fn main() {
-    let _ = rocket::build()
+    let config = rocket::Config::figment()
+    .merge(("address", "0.0.0.0"))
+    .merge(("port", 80));
+    // .finalize();
+
+    let _ = rocket::custom(config)
         .mount("/", routes![index, scouting_post, scouting_get, scouting_delete])  // Just put all of the routes in here
         .launch()
         .await;
