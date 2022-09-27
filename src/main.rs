@@ -11,6 +11,7 @@ async fn index() -> &'static str {
 
 #[post("/scouting", format="json", data="<csv>")]       // The thing for post requests
 async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
+    if csv.password == "password" {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned();       // Original String
     let mut thing: String;      // Placeholder string
     // Puts all of the data into a vector
