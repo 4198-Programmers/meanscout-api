@@ -9,9 +9,10 @@ use std::fs;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct FormData<'r> {
-    pub team: Cow<'r, i64>,
+    pub team: Cow<'r, str>,
     pub matchnum: Cow<'r, str>,
     pub absent: Cow<'r, bool>,
+    pub name: Cow<'r, str>,
     pub teamlefttarm: Cow<'r, bool>,
     pub teamcollecte: Cow<'r, bool>,
     pub toppre: Cow<'r, i64>,
