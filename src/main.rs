@@ -33,11 +33,11 @@ async fn index() -> &'static str {
 
 #[post("/scouting", format="json", data="<csv>")]       // The thing for post requests
 async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
-    if csv.password == "password" {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
+    if csv.password != "password" {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned();       // Original String
     let mut thing: String;      // Placeholder string
     // Puts all of the data into a vector
-    let yes = [csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string(), csv.teamlefttarm.to_string(), csv.teamcollecte.to_string(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string(), csv.anyrobotprob.to_string(), csv.extranotes.to_string(), csv.driveteamrat.to_string()];
+    let yes = [csv.name.to_string(), csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string(), csv.teamlefttarm.to_string(), csv.teamcollecte.to_string(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string(), csv.anyrobotprob.to_string(), csv.extranotes.to_string(), csv.driveteamrat.to_string()];
     for i in yes.iter() {   // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
         if String::from(i) == csv.driveteamrat.to_string() {
@@ -63,7 +63,7 @@ async fn scouting_delete() -> String {
 #[rocket::main]
 async fn main() {
     let config = rocket::Config::figment()
-    .merge(("address", "0.0.0.0"))
+    .merge(("address", "127.0.0.1"))
     .merge(("port", 8000));
     // .finalize();
 
