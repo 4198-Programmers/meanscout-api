@@ -56,7 +56,7 @@ pub fn append_csv(content: &str) {
     init_files();
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open("data.csv")
+      .open("~/4198/scouting_data/current/data.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -65,6 +65,6 @@ pub fn append_csv(content: &str) {
 
 /// Wipes data.csv
 pub fn wipe_data() {
-    let _ = fs::write("data.csv", "");
+    let _ = fs::write("~/4198/scouting_data/current/data.csv", "");
     return
 }
