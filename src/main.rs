@@ -63,7 +63,7 @@ async fn scouting_delete() -> String {
 #[rocket::main]
 async fn main() {
     let config = rocket::Config::figment()
-    .merge(("address", "127.0.0.1"))
+    .merge(("address", "0.0.0.0"))
     .merge(("port", 8000));
     // .finalize();
 
