@@ -40,8 +40,8 @@ pub struct FormDataTest<'r> {
 
 /// Initializing the data file
 fn init_files() {
-    if !file_exists("data.csv") {
-        let _userfile = File::create("data.csv");
+    if !file_exists("~/4198/scouting_data/current/data.csv") {
+        let _userfile = File::create("~/4198/scouting_data/current/data.csv");
     }
     return
 }
