@@ -51,7 +51,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
 
 #[get("/scouting")]     // The thing for get requests
 async fn scouting_get() -> Option<NamedFile>{
-    NamedFile::open("./data.csv").await.ok()    // Returns the filename
+    NamedFile::open("~/4198/scouting_data/current/data.csv").await.ok()    // Returns the filename
 }
 
 #[delete("/scouting")]      // The thing for delete requests
