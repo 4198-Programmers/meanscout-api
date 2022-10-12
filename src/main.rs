@@ -64,7 +64,9 @@ async fn scouting_delete() -> String {
 async fn main() {
     let config = rocket::Config::figment()
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000));
+    .merge(("port", 8000))
+    .merge(("tls.certs", "cert.pem"))
+    .merge(("tls.key", "key.pem"));
     // .finalize();
 
     let _ = rocket::custom(config)
