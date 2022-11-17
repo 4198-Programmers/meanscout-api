@@ -1,10 +1,12 @@
 #[macro_use] extern crate rocket;
+use rocket::response::status;
 use rocket::serde::json::Json;
 mod csvstuff;
 use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::{Request, Response};
 use rocket::fairing::{Fairing, Info, Kind};
+use rocket::http::Status;
 
 pub struct CORS;
 
@@ -38,13 +40,13 @@ fn all_options() {
 }
 
 #[post("/scouting", data="<csv>")]       // The thing for post requests
-async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
+async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     let passwords = ["password".to_string()];
     
-    if passwords.contains(&csv.password.to_string()) == false {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
+    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned();       // Original String
     let mut thing: String;      // Placeholder string
-    // Puts all of the data into a vector
+    // Puts all of the data into a vector/array
     let yes = [csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string().to_uppercase(), csv.name.to_string(), csv.location.to_string(), csv.teamlefttarm.to_string().to_uppercase(), csv.teamcollecte.to_string().to_uppercase(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string().to_uppercase(), csv.roughestimat.to_string().replace(" seconds", ""), csv.anyrobotprob.to_string(), csv.extranotes.to_string().replace(",", ""), csv.driveteamrat.to_string().replace(",", "")];
     for i in yes.iter() {   // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
@@ -54,12 +56,12 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
         owned_string.push_str(&thing)
     }
     csvstuff::append_csv(&owned_string);    // Adds the stuff to data.csv
-    String::from("Added Data!")     // Returns Added Data!
+    return Status::Accepted    // Returns accepted status
 }
 
 #[get("/scouting")]     // The thing for get requests
 async fn scouting_get() -> Option<NamedFile>{
-    NamedFile::open("~/4198/scouting_data/current/data.csv").await.ok()    // Returns the filename
+    NamedFile::open("data.csv").await.ok()    // Returns the filename
 }
 
 #[delete("/scouting")]      // The thing for delete requests
@@ -89,7 +91,7 @@ macro_rules! error {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log.csv")
+        .open("logs/yes.log")
         .unwrap();
       
         let _ = writeln!(file, "[ERROR] [time] - {}", format!("{}", $x));   
@@ -101,7 +103,7 @@ macro_rules! success {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log.csv")
+        .open("logs/yes.log")
         .unwrap();
       
          let _ = writeln!(file, "[SUCCESS] [time] - {}", format!("{}", $x));    
@@ -113,7 +115,7 @@ macro_rules! warning {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log.csv")
+        .open("logs/yes.log")
         .unwrap();
       
         let _ = writeln!(file, "[WARNING] [time] - {}", format!("{}", $x));   
