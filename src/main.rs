@@ -83,3 +83,39 @@ async fn main() {
         .launch()
         .await;
 }
+
+#[macro_export]
+macro_rules! error {
+    ( $x:expr ) => {{    
+        let mut file = fs::OpenOptions::new()
+        .append(true)
+        .open("logs/yes.log.csv")
+        .unwrap();
+      
+        let _ = writeln!(file, "[ERROR] [time] - {}", format!("{}", $x));   
+    }};
+}
+
+#[macro_export]
+macro_rules! success {
+    ( $x:expr ) => {{    
+        let mut file = fs::OpenOptions::new()
+        .append(true)
+        .open("logs/yes.log.csv")
+        .unwrap();
+      
+         let _ = writeln!(file, "[SUCCESS] [time] - {}", format!("{}", $x));    
+    }};
+}
+
+#[macro_export]
+macro_rules! warning {
+    ( $x:expr ) => {{    
+        let mut file = fs::OpenOptions::new()
+        .append(true)
+        .open("logs/yes.log.csv")
+        .unwrap();
+      
+        let _ = writeln!(file, "[WARNING] [time] - {}", format!("{}", $x));   
+    }};
+}
