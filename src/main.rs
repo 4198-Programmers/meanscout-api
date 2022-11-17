@@ -31,13 +31,21 @@ async fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[post("/scouting", format="json", data="<csv>")]       // The thing for post requests
+/// Catches all OPTION requests in order to get the CORS related Fairing triggered.
+#[options("/<_..>")]
+fn all_options() {
+    /* Intentionally left empty */
+}
+
+#[post("/scouting", data="<csv>")]       // The thing for post requests
 async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> String {
-    if csv.password != "password" {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
+    let passwords = ["password".to_string()];
+    
+    if passwords.contains(&csv.password.to_string()) == false {return "bad you didn't use the password".to_string()}    // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned();       // Original String
     let mut thing: String;      // Placeholder string
     // Puts all of the data into a vector
-    let yes = [csv.name.to_string(), csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string(), csv.teamlefttarm.to_string(), csv.teamcollecte.to_string(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string(), csv.anyrobotprob.to_string(), csv.extranotes.to_string(), csv.driveteamrat.to_string()];
+    let yes = [csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string().to_uppercase(), csv.name.to_string(), csv.location.to_string(), csv.teamlefttarm.to_string().to_uppercase(), csv.teamcollecte.to_string().to_uppercase(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string().to_uppercase(), csv.roughestimat.to_string().replace(" seconds", ""), csv.anyrobotprob.to_string(), csv.extranotes.to_string().replace(",", ""), csv.driveteamrat.to_string().replace(",", "")];
     for i in yes.iter() {   // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
         if String::from(i) == csv.driveteamrat.to_string() {
@@ -64,13 +72,13 @@ async fn scouting_delete() -> String {
 async fn main() {
     let config = rocket::Config::figment()
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000))
-    .merge(("tls.certs", "cert.pem"))
-    .merge(("tls.key", "key.pem"));
+    .merge(("port", 8000));
+    // .merge(("tls.certs", "cert.pem"))
+    // .merge(("tls.key", "key.pem"));
     // .finalize();
 
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, scouting_get, scouting_delete])  // Just put all of the routes in here
+        .mount("/", routes![index, scouting_post, scouting_get, scouting_delete, all_options])  // Just put all of the routes in here
         .attach(CORS)
         .launch()
         .await;

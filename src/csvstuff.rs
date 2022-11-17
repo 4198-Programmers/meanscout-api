@@ -13,6 +13,7 @@ pub struct FormData<'r> {
     pub matchnum: Cow<'r, str>,
     pub absent: Cow<'r, bool>,
     pub name: Cow<'r, str>,
+    pub location: Cow<'r, str>, //
     pub teamlefttarm: Cow<'r, bool>,
     pub teamcollecte: Cow<'r, bool>,
     pub toppre: Cow<'r, i64>,
@@ -25,6 +26,7 @@ pub struct FormData<'r> {
     pub defenceplaye: Cow<'r, str>,
     pub barnumberrea: Cow<'r, str>,
     pub teamattempts: Cow<'r, bool>,
+    pub roughestimat: Cow<'r, str>, //
     pub anyrobotprob: Cow<'r, str>,
     pub extranotes: Cow<'r, str>,
     pub driveteamrat: Cow<'r, str>,
@@ -40,8 +42,8 @@ pub struct FormDataTest<'r> {
 
 /// Initializing the data file
 fn init_files() {
-    if !file_exists("~/4198/scouting_data/current/data.csv") {
-        let _userfile = File::create("~/4198/scouting_data/current/data.csv");
+    if !file_exists("data.csv") {
+        let _userfile = File::create("data.csv");
     }
     return
 }
@@ -56,7 +58,7 @@ pub fn append_csv(content: &str) {
     init_files();
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open("~/4198/scouting_data/current/data.csv")
+      .open("data.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -65,6 +67,6 @@ pub fn append_csv(content: &str) {
 
 /// Wipes data.csv
 pub fn wipe_data() {
-    let _ = fs::write("~/4198/scouting_data/current/data.csv", "");
+    let _ = fs::write("data.csv", "");
     return
 }
