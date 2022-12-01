@@ -47,7 +47,29 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     let mut owned_string: String = "".to_owned();       // Original String
     let mut thing: String;      // Placeholder string
     // Puts all of the data into a vector/array
-    let yes = [csv.team.to_string(), csv.matchnum.to_string(), csv.absent.to_string().to_uppercase(), csv.name.to_string(), csv.location.to_string(), csv.teamlefttarm.to_string().to_uppercase(), csv.teamcollecte.to_string().to_uppercase(), csv.toppre.to_string(), csv.bottompre.to_string(), csv.missedpre.to_string(), csv.top.to_string(), csv.bottom.to_string(), csv.missed.to_string(), csv.safeareausag.to_string(), csv.defenceplaye.to_string(), csv.barnumberrea.to_string(), csv.teamattempts.to_string().to_uppercase(), csv.roughestimat.to_string().replace(" seconds", ""), csv.anyrobotprob.to_string(), csv.extranotes.to_string().replace(",", ""), csv.driveteamrat.to_string().replace(",", "")];
+    let yes = [
+        csv.team.to_string(), 
+        csv.matchnum.to_string(), 
+        csv.absent.to_string().to_uppercase(), 
+        csv.name.to_string(), 
+        csv.location.to_string(), 
+        csv.teamlefttarm.to_string().to_uppercase(), 
+        csv.teamcollecte.to_string().to_uppercase(), 
+        csv.toppre.to_string(), 
+        csv.bottompre.to_string(), 
+        csv.missedpre.to_string(), 
+        csv.top.to_string(), 
+        csv.bottom.to_string(), 
+        csv.missed.to_string(), 
+        csv.safeareausag.to_string(), 
+        csv.defenceplaye.to_string(), 
+        csv.barnumberrea.to_string(), 
+        csv.teamattempts.to_string().to_uppercase(), 
+        csv.roughestimat.to_string().replace(" seconds", ""), 
+        csv.anyrobotprob.to_string(), 
+        csv.extranotes.to_string().replace(",", ""),
+        csv.driveteamrat.to_string().replace(",", "")
+    ];
     for i in yes.iter() {   // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
         if String::from(i) == csv.driveteamrat.to_string() {
