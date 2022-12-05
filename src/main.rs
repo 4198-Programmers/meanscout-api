@@ -97,6 +97,8 @@ async fn main() {
     let config = rocket::Config::figment()
     .merge(("address", "0.0.0.0"))
     .merge(("port", 8000))
+    // Replace these file paths with wherever your needed pem files are for the right certifications
+    // Or comment it out if you want to live the dangerous life
     .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
     .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
@@ -113,7 +115,7 @@ macro_rules! error {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log")
+        .open("logs/meanscout.log")
         .unwrap();
       
         let _ = writeln!(file, "[ERROR] [time] - {}", format!("{}", $x));   
@@ -125,7 +127,7 @@ macro_rules! success {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log")
+        .open("logs/meanscout.log")
         .unwrap();
       
          let _ = writeln!(file, "[SUCCESS] [time] - {}", format!("{}", $x));    
@@ -137,7 +139,7 @@ macro_rules! warning {
     ( $x:expr ) => {{    
         let mut file = fs::OpenOptions::new()
         .append(true)
-        .open("logs/yes.log")
+        .open("logs/meanscout.log")
         .unwrap();
       
         let _ = writeln!(file, "[WARNING] [time] - {}", format!("{}", $x));   
