@@ -41,7 +41,7 @@ fn all_options() {
 
 #[post("/scouting", data="<csv>")]       // The thing for post requests
 async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
-    let passwords = ["password".to_string()];
+    let passwords = ["ChangeMe!".to_string()];
     
     if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned();       // Original String
