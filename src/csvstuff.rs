@@ -26,7 +26,7 @@ pub struct FormData<'r> {
     pub defenceplaye: Cow<'r, str>,
     pub barnumberrea: Cow<'r, str>,
     pub teamattempts: Cow<'r, bool>,
-    pub roughestimat: Cow<'r, str>, //
+    pub climbtime: Cow<'r, str>, //
     pub anyrobotprob: Cow<'r, str>,
     pub extranotes: Cow<'r, str>,
     pub driveteamrat: Cow<'r, str>,
