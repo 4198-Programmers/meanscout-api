@@ -57,26 +57,37 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.absent.to_string().to_uppercase(), 
         csv.name.to_string(), 
         csv.location.to_string(), 
-        csv.teamlefttarm.to_string().to_uppercase(), 
-        csv.teamcollecte.to_string().to_uppercase(), 
-        csv.toppre.to_string(), 
-        csv.bottompre.to_string(), 
-        csv.missedpre.to_string(), 
-        csv.top.to_string(), 
-        csv.bottom.to_string(), 
-        csv.missed.to_string(), 
-        csv.safeareausag.to_string(), 
-        csv.defenceplaye.to_string(), 
-        csv.barnumberrea.to_string(), 
-        csv.teamattempts.to_string().to_uppercase(), 
-        format!("{:.1}", csv.climbtime), 
-        csv.anyrobotprob.to_string(), 
+        csv.teamleftcommu.to_string().to_uppercase(), 
+        csv.teamcollected.to_string().to_uppercase(), 
+        csv.topcubes.to_string(), 
+        csv.bottomcubes.to_string(), 
+        csv.middlecubes.to_string(), 
+        csv.missedcubes.to_string(), 
+        csv.topcones.to_string(), 
+        csv.middlecones.to_string(), 
+        csv.bottomcones.to_string(), 
+        csv.missedcones.to_string(), 
+        csv.topcube.to_string(), 
+        csv.middlecube.to_string(), 
+        csv.bottomcube.to_string(), 
+        csv.missedcube.to_string(), 
+        csv.topcone.to_string(), 
+        csv.middlecone.to_string(), 
+        csv.bottomcone.to_string(), 
+        csv.missedcone.to_string(), 
+        format!("{:.1}", csv.defenceplayti),
+        csv.defensiverati.to_string(),
+        csv.teamattemptsc.to_string().to_uppercase(),
+        csv.chargestation.to_string().to_uppercase(),  
+        csv.anyrobotprobl.to_string(),
+        csv.fouls.to_string().replace(",", ""),
         csv.extranotes.to_string().replace(",", ""),
-        csv.driveteamrat.to_string().replace(",", "")
+        csv.driveteamrati.to_string().replace(",", ""),
+        csv.playstylesumm.to_string().replace(",", ""),
     ];
     for i in data.iter() {   // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
-        if String::from(i) == csv.driveteamrat.to_string() {
+        if String::from(i) == csv.playstylesumm.to_string() {
             thing = format!("{}", i)
         }
         owned_string.push_str(&thing)
