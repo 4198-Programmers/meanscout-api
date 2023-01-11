@@ -96,6 +96,63 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     return Status::Accepted    // Returns accepted status when done
 }
 
+// Accepting POST requests from Meanscout
+#[post("/pits", data="<csv>")]
+async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
+    // Array for storing the passwords
+    let passwords = ["ChangeMe!".to_string()];
+    
+    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned();   // String for later to append to
+    let mut thing: String;      // Placeholder string
+
+    // Puts all of the data into a vector/array
+    let data = [
+    csv.team.to_string(),
+    csv.absent.to_string(),
+    csv.name.to_string(),
+    csv.location.to_string(), //
+    csv.fullteamname.to_string(),
+    csv.teamlocation.to_string(),
+    csv.robotname.to_string(),
+    csv.drivetraintype.to_string(),
+    csv.motortype.to_string(),
+    csv.abilitytomoveco.to_string(),
+    csv.abilitytomovecu.to_string(),
+    csv.averageconecycl.to_string(),
+    csv.averagecubecycl.to_string(),
+    csv.successfullgrab.to_string(),
+    csv.robotweightlbs.to_string(),
+    csv.goalheight.to_string(),
+    csv.totalwheelsused.to_string(),
+
+    csv.endgameabilitys.to_string(),
+    csv.endgametraction.to_string(),
+    csv.wherearepneumat.to_string(),
+    csv.whereare3dprint.to_string(),
+
+    csv.programmedautoc.to_string(),
+    csv.limelightcapabi.to_string(),
+    csv.apriltagsused.to_string(),
+    csv.reflectivetapeu.to_string(),
+    csv.extracamerasuse.to_string(),
+    csv.automationviase.to_string(),
+
+    csv.whatisyourfavor.to_string(),
+    csv.arethereanyothe.to_string(),
+    ];
+    for i in data.iter() {   // Iterates through the list and appends the data to a string
+        thing = format!("{}, ", i);
+        if String::from(i) == csv.arethereanyothe.to_string() {
+            thing = format!("{}", i)
+        }
+        owned_string.push_str(&thing)
+    }
+    csvstuff::append_pits(&owned_string);    // Adds the information to data.csv
+    return Status::Accepted    // Returns accepted status when done
+}
+
+
 // When you send a GET request or open it in a web browser it will send the file for data.csv
 #[get("/scouting")]
 async fn scouting_get() -> Option<NamedFile>{
@@ -114,15 +171,15 @@ async fn main() {
     let config = rocket::Config::figment()
     // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000))
+    .merge(("port", 8000));
     // Replace the file paths below with wherever your needed pem files are for the right certifications
     // Or comment it out if you want to live the dangerous life
-    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
+    // .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
+    // .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
 
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, scouting_get, scouting_delete, all_options])  // Just put all of the routes in here
+        .mount("/", routes![index, scouting_post, scouting_get, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
         .attach(CORS)
         .launch()
         .await;

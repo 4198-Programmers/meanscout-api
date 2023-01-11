@@ -44,6 +44,44 @@ pub struct FormData<'r> {
     pub password: Cow<'r, str>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(crate = "rocket::serde")]
+pub struct PitData<'r> {
+    pub team: Cow<'r, str>,
+    pub absent: Cow<'r, bool>,
+    pub name: Cow<'r, str>,
+    pub location: Cow<'r, str>, //
+    pub fullteamname: Cow<'r, str>,
+    pub teamlocation: Cow<'r, str>,
+    pub robotname: Cow<'r, str>,
+    pub drivetraintype: Cow<'r, str>,
+    pub motortype: Cow<'r, str>,
+    pub abilitytomoveco: Cow<'r, f64>,
+    pub abilitytomovecu: Cow<'r, f64>,
+    pub averageconecycl: Cow<'r, f64>,
+    pub averagecubecycl: Cow<'r, f64>,
+    pub successfullgrab: Cow<'r, f64>,
+    pub robotweightlbs: Cow<'r, f64>,
+    pub goalheight: Cow<'r, str>,
+    pub totalwheelsused: Cow<'r, i64>,
+
+    pub endgameabilitys: Cow<'r, str>,
+    pub endgametraction: Cow<'r, i64>,
+    pub wherearepneumat: Cow<'r, str>,
+    pub whereare3dprint: Cow<'r, str>,
+
+    pub programmedautoc: Cow<'r, str>,
+    pub limelightcapabi: Cow<'r, str>,
+    pub apriltagsused: Cow<'r, bool>,
+    pub reflectivetapeu: Cow<'r, bool>,
+    pub extracamerasuse: Cow<'r, bool>,
+    pub automationviase: Cow<'r, bool>,
+
+    pub whatisyourfavor: Cow<'r, str>,
+    pub arethereanyothe: Cow<'r, str>,
+    pub password: Cow<'r, str>,
+}
+
 /// Just a test struct
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
@@ -70,6 +108,18 @@ pub fn append_csv(content: &str) {
     let mut file = fs::OpenOptions::new()
       .append(true)
       .open("data.csv")
+      .unwrap();
+    
+    let _ = writeln!(file, "{}", format!("{}", content));
+    return
+}
+
+/// Adds to data.csv
+pub fn append_pits(content: &str) {
+    init_files();
+    let mut file = fs::OpenOptions::new()
+      .append(true)
+      .open("pits.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
