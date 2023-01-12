@@ -52,8 +52,10 @@ If you would like to contribute to the project you can do any of the following.
 
 ## Credits
 
-Thanks to everyone who has helped with this endeavour
+Special thanks to <a href="https://github.com/jmelancon"> Joseph Melancon</a> for kicking off our teams digital scouting efforts advising us any much more
 
-- Aiden Lee (the one writing this)
-- William Melancon (Co-Scouting Captain)
-- Joseph Melancon (The scouting captain before us)
+<a href="https://github.com/4198-Programmers/meanscout-api-rust/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=4198-Programmers/meanscout-api-rust" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
