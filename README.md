@@ -52,7 +52,7 @@ If you would like to contribute to the project you can do any of the following.
 
 ## Credits
 
-Special thanks to <a href="https://github.com/jmelancon"> Joseph Melancon</a> for kicking off our teams digital scouting efforts advising us any much more
+Special thanks to <a href="https://github.com/jmelancon"> Joseph Melancon</a> for kicking off our teams digital scouting efforts advising us and much more
 
 <a href="https://github.com/4198-Programmers/meanscout-api-rust/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=4198-Programmers/meanscout-api-rust" />
