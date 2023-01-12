@@ -123,7 +123,7 @@ async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     csv.averagecubecycl.to_string(),
     csv.successfullgrab.to_string(),
     csv.robotweightlbs.to_string(),
-    csv.goalheight.to_string(),
+    csv.heightcapabilit.to_string(),
     csv.totalwheelsused.to_string(),
 
     csv.endgameabilitys.to_string(),
