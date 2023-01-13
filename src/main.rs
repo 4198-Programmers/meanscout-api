@@ -172,11 +172,11 @@ async fn main() {
     let config = rocket::Config::figment()
     // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000));
+    .merge(("port", 8000))
     // Replace the file paths below with wherever your needed pem files are for the right certifications
     // Or comment it out if you want to live the dangerous life
-    // .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    // .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
+    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
+    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
 
     let _ = rocket::custom(config)
