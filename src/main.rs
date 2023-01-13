@@ -59,6 +59,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.location.to_string(), 
         csv.teamleftcommu.to_string().to_uppercase(), 
         csv.teamcollected.to_string().to_uppercase(), 
+        csv.autochargesta.to_string(),
         csv.topcubes.to_string(), 
         csv.bottomcubes.to_string(), 
         csv.middlecubes.to_string(), 

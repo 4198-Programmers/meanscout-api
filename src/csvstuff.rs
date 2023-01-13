@@ -16,6 +16,7 @@ pub struct FormData<'r> {
     pub location: Cow<'r, str>, //
     pub teamleftcommu: Cow<'r, bool>,
     pub teamcollected: Cow<'r, bool>,
+    pub autochargesta: Cow<'r, bool>,
     pub topcubes: Cow<'r, i64>,
     pub middlecubes: Cow<'r, i64>,
     pub bottomcubes: Cow<'r, i64>,
