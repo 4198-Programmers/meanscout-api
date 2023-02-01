@@ -2,3 +2,5 @@
 .DS_Store
 /.vscode
 data.csv
+pits.csv
+/logs/scouting.log
