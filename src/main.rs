@@ -7,6 +7,8 @@ use rocket::http::Header;
 use rocket::{Request, Response};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
+use std::io::Write;
+use chrono::{Datelike, Timelike, Local};
 
 pub struct CORS;
 
@@ -178,7 +180,8 @@ async fn main() {
     .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
     .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
-
+    csvstuff::init_files();
+    success!("Started API");
     let _ = rocket::custom(config)
         .mount("/", routes![index, scouting_post, scouting_get, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
         .attach(CORS)
@@ -189,35 +192,38 @@ async fn main() {
 #[macro_export]
 macro_rules! error {
     ( $x:expr ) => {{    
-        let mut file = fs::OpenOptions::new()
+        let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("logs/meanscout.log")
+        .open("logs/scouting.log")
         .unwrap();
-      
-        let _ = writeln!(file, "[ERROR] [time] - {}", format!("{}", $x));   
+        let now = Local::now();
+        let (is_pm, hour) = now.hour12();
+         let _ = writeln!(file, "[ ERROR ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
     }};
 }
 
 #[macro_export]
 macro_rules! success {
     ( $x:expr ) => {{    
-        let mut file = fs::OpenOptions::new()
+        let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("logs/meanscout.log")
+        .open("logs/scouting.log")
         .unwrap();
-      
-         let _ = writeln!(file, "[SUCCESS] [time] - {}", format!("{}", $x));    
+        let now = Local::now();
+        let (is_pm, hour) = now.hour12();
+         let _ = writeln!(file, "[ SUCCESS ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
     }};
 }
 
 #[macro_export]
 macro_rules! warning {
     ( $x:expr ) => {{    
-        let mut file = fs::OpenOptions::new()
+        let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("logs/meanscout.log")
+        .open("logs/scouting.log")
         .unwrap();
-      
-        let _ = writeln!(file, "[WARNING] [time] - {}", format!("{}", $x));   
+        let now = Local::now();
+        let (is_pm, hour) = now.hour12();
+         let _ = writeln!(file, "[ WARNING ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
     }};
 }

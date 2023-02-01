@@ -92,9 +92,15 @@ pub struct FormDataTest<'r> {
 }
 
 /// Initializing the data file
-fn init_files() {
+pub fn init_files() {
     if !file_exists("data.csv") {
         let _userfile = File::create("data.csv");
+    }
+    if !file_exists("pits.csv") {
+        let _userfile = File::create("pits.csv");
+    }
+    if !file_exists("logs/scouting.log") {
+        let _userfile = File::create("logs/scouting.log");
     }
     return
 }
@@ -113,7 +119,7 @@ pub fn append_csv(content: &str) {
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
-    return
+    return;
 }
 
 /// Adds to data.csv
