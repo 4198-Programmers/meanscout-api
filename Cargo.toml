@@ -10,3 +10,4 @@ rocket = {version = "0.5.0-rc", features = ["tls", "json"]}
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = true, features = ["alloc"] }
+chrono = { version = "0.4.23" }
