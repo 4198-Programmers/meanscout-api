@@ -64,7 +64,7 @@ pub struct PitData<'r> {
     pub averagecubecycl: Cow<'r, f64>,
     pub successfullgrab: Cow<'r, f64>,
     pub robotweightlbs: Cow<'r, f64>,
-    pub heightcapabilit: Cow<'r, str>,
+    pub maxheightcapabi: Cow<'r, str>,
     pub totalwheelsused: Cow<'r, i64>,
 
     pub endgameabilitys: Cow<'r, str>,
