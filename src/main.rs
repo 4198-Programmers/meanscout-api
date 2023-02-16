@@ -9,6 +9,8 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use std::io::Write;
 use chrono::{Datelike, Timelike, Local};
+use std::io::prelude::*;
+use std::fs::File;
 
 pub struct CORS;
 
@@ -229,21 +231,30 @@ async fn scouting_delete() -> String {
     String::from("Wiped data.csv")
 }
 
+// Accessing Logs
+#[get("/logs")]
+async fn logs() -> String {
+    let mut file = File::open("logs/scouting.log").expect("Unable to open the file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).expect("Unable to read the file");
+    contents
+}
+
 #[rocket::main]
 async fn main() {
     let config = rocket::Config::figment()
     // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000))
+    .merge(("port", 8000));
     // Replace the file paths below with wherever your needed pem files are for the right certifications
     // Or comment it out if you want to live the dangerous life
-    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
+    // .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
+    // .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
     csvstuff::init_files();
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, test_post, scouting_get, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
+        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
         .attach(CORS)
         .launch()
         .await;
