@@ -100,6 +100,64 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
 }
 
 // Accepting POST requests from Meanscout
+#[post("/test", data="<csv>")]
+async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
+    // Array for storing the passwords
+    let passwords = ["ChangeMe!".to_string()];
+    
+    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned();   // String for later to append to
+    let mut thing: String;      // Placeholder string
+
+    // Puts all of the data into a vector/array
+    let data = [
+        csv.team.to_string(), 
+        csv.matchnum.to_string(), 
+        csv.absent.to_string().to_uppercase(), 
+        csv.name.to_string().replace(",", ""), 
+        csv.location.to_string(), 
+        csv.teamleftcommu.to_string().to_uppercase(), 
+        csv.teamcollected.to_string().to_uppercase(), 
+        csv.autochargesta.to_string(),
+        csv.topcubes.to_string(), 
+        csv.bottomcubes.to_string(), 
+        csv.middlecubes.to_string(), 
+        csv.missedcubes.to_string(), 
+        csv.topcones.to_string(), 
+        csv.middlecones.to_string(), 
+        csv.bottomcones.to_string(), 
+        csv.missedcones.to_string(), 
+        csv.topcube.to_string(), 
+        csv.middlecube.to_string(), 
+        csv.bottomcube.to_string(), 
+        csv.missedcube.to_string(), 
+        csv.topcone.to_string(), 
+        csv.middlecone.to_string(), 
+        csv.bottomcone.to_string(), 
+        csv.missedcone.to_string(), 
+        format!("{:.1}", csv.defenceplayti),
+        csv.defensiverati.to_string(),
+        csv.teamattemptsc.to_string().to_uppercase(),
+        csv.chargestation.to_string().to_uppercase(),  
+        csv.anyrobotprobl.to_string(),
+        csv.fouls.to_string().replace(",", ""),
+        csv.extranotes.to_string().replace(",", ""),
+        csv.driveteamrati.to_string().replace(",", ""),
+        csv.playstylesumm.to_string().replace(",", ""),
+    ];
+    for i in data.iter() {   // Iterates through the list and appends the data to a string
+        thing = format!("{}, ", i);
+        if String::from(i) == csv.playstylesumm.to_string() {
+            thing = format!("{}", i)
+        }
+        owned_string.push_str(&thing)
+    }
+    csvstuff::test_csv(&owned_string);    // Adds the information to tes.ctsv
+    return Status::Accepted    // Returns accepted status when done
+}
+
+
+// Accepting POST requests from Meanscout
 #[post("/pits", data="<csv>")]
 async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     // Array for storing the passwords
@@ -183,7 +241,7 @@ async fn main() {
     csvstuff::init_files();
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, scouting_get, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
+        .mount("/", routes![index, scouting_post, test_post, scouting_get, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
         .attach(CORS)
         .launch()
         .await;

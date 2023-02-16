@@ -102,6 +102,9 @@ pub fn init_files() {
     if !file_exists("logs/scouting.log") {
         let _userfile = File::create("logs/scouting.log");
     }
+    if !file_exists("test.csv") {
+        let _userfile = File::create("test.csv");
+    }
     return
 }
 
@@ -116,6 +119,18 @@ pub fn append_csv(content: &str) {
     let mut file = fs::OpenOptions::new()
       .append(true)
       .open("data.csv")
+      .unwrap();
+    
+    let _ = writeln!(file, "{}", format!("{}", content));
+    return;
+}
+
+/// Instead adds to the garbage data csv
+pub fn test_csv(content: &str) {
+    init_files();
+    let mut file = fs::OpenOptions::new()
+      .append(true)
+      .open("test.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
