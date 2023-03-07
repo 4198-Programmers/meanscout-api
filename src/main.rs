@@ -65,33 +65,34 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.teamcollected.to_string().to_uppercase(), 
         csv.autochargesta.to_string(),
         // format!("{:?}", csv.toggletesting),
-        csv.toggletesting[0].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[1].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[2].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[3].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[4].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[5].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[6].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[7].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[8].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[9].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[10].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[11].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[12].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[13].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[14].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[15].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[16].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[17].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[18].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[19].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[20].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[21].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[22].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[23].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[24].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[25].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
-        csv.toggletesting[26].value.to_string().to_lowercase().replace("true", "1").replace("false", "0"),
+        csv.toggletesting[0].value.to_string(),
+        csv.toggletesting[1].value.to_string(),
+        csv.toggletesting[2].value.to_string(),
+        csv.toggletesting[3].value.to_string(),
+        csv.toggletesting[4].value.to_string(),
+        csv.toggletesting[5].value.to_string(),
+        csv.toggletesting[6].value.to_string(),
+        csv.toggletesting[7].value.to_string(),
+        csv.toggletesting[8].value.to_string(),
+        csv.toggletesting[9].value.to_string(),
+        csv.toggletesting[10].value.to_string(),
+        csv.toggletesting[11].value.to_string(),
+        csv.toggletesting[12].value.to_string(),
+        csv.toggletesting[13].value.to_string(),
+        csv.toggletesting[14].value.to_string(),
+        csv.toggletesting[15].value.to_string(),
+        csv.toggletesting[16].value.to_string(),
+        csv.toggletesting[17].value.to_string(),
+        csv.toggletesting[18].value.to_string(),
+        csv.toggletesting[19].value.to_string(),
+        csv.toggletesting[20].value.to_string(),
+        csv.toggletesting[21].value.to_string(),
+        csv.toggletesting[22].value.to_string(),
+        csv.toggletesting[23].value.to_string(),
+        csv.toggletesting[24].value.to_string(),
+        csv.toggletesting[25].value.to_string(),
+        csv.toggletesting[26].value.to_string(),
+        
         // csv.topcubes.to_string(), 
         // csv.bottomcubes.to_string(), 
         // csv.middlecubes.to_string(), 
@@ -273,11 +274,11 @@ async fn main() {
     let config = rocket::Config::figment()
     // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
     .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000));
+    .merge(("port", 8000))
     // Replace the file paths below with wherever your needed pem files are for the right certifications
     // Or comment it out if you want to live the dangerous life
-    // .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    // .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
+    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
+    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
     csvstuff::init_files();
     success!("Started API");

@@ -90,7 +90,7 @@ pub struct PitData<'r> {
 #[serde(crate = "rocket::serde")]
 pub struct GridData<'r> {
     pub name: Cow<'r, str>,
-    pub value: Cow<'r, bool>,
+    pub value: Cow<'r, i32>,
     // element: Option<Cow<'r, str>>,
     // toggle: Option<Cow<'r, str>>,
 }
