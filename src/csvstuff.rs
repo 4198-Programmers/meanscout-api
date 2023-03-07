@@ -33,6 +33,7 @@ pub struct FormData<'r> {
     pub middlecone: Cow<'r, i64>,
     pub bottomcone: Cow<'r, i64>,
     pub missedcone: Cow<'r, i64>,
+    pub autochargesta: Cow<'r, str>,
     pub defenceplayti: Cow<'r, f64>,
     pub defensiverati: Cow<'r, i64>,
     pub teamattemptsc: Cow<'r, bool>,
