@@ -113,7 +113,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.defensiverati.to_string(),
         csv.teamattemptsc.to_string().to_uppercase(),
         csv.chargestation.to_string().to_uppercase(), 
-        csv.links.to_string(),
+        // csv.links.to_string(),
         csv.anyrobotprobl.to_string(),
         csv.fouls.to_string().replace(",", ""),
         csv.extranotes.to_string().replace(",", ""),

@@ -38,7 +38,7 @@ pub struct FormData<'r> {
     pub defensiverati: Cow<'r, i64>,
     pub teamattemptsc: Cow<'r, bool>,
     pub chargestation: Cow<'r, str>,
-    pub links: Cow<'r, i64>,
+    // pub links: Cow<'r, i64>,
     pub anyrobotprobl: Cow<'r, str>,
     pub fouls: Cow<'r, str>,
     pub extranotes: Cow<'r, str>,
