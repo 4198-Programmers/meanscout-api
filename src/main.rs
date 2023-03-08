@@ -167,7 +167,7 @@ async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         // csv.middlecone.to_string(), 
         // csv.bottomcone.to_string(), 
         // csv.missedcone.to_string(), 
-        format!("{:.1}", csv.defenceplayti),
+        format!("{:.1}", csv.defenseplayti),
         csv.defensiverati.to_string(),
         csv.teamattemptsc.to_string().to_uppercase(),
         csv.chargestation.to_string().to_uppercase(),
