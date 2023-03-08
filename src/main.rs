@@ -220,7 +220,7 @@ async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     csv.maxheightcapabi.to_string().replace(",", ""),
     csv.totalwheelsused.to_string().replace(",", ""),
 
-    csv.endgameabilitys.to_string().replace(",", ""),
+    
     // csv.endgametraction.to_string(),
     csv.wherearepneumat.to_string().replace(",", ""),
     csv.whereare3dprint.to_string().replace(",", ""),
@@ -232,7 +232,9 @@ async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     csv.extracamerasuse.to_string().replace(",", ""),
     csv.automationviase.to_string().replace(",", ""),
 
+    csv.endgameabilitys.to_string().replace(",", ""),
     csv.whatisyourfavor.to_string().replace(",", ""),
+    csv.drivestationsum.to_string().replace(",", ""),
     csv.arethereanyothe.to_string().replace(",", ""),
     ];
     for i in data.iter() {   // Iterates through the list and appends the data to a string

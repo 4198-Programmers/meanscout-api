@@ -68,7 +68,7 @@ pub struct PitData<'r> {
     pub maxheightcapabi: Cow<'r, str>,
     pub totalwheelsused: Cow<'r, i64>,
 
-    pub endgameabilitys: Cow<'r, str>,
+    
     // pub endgametraction: Cow<'r, i64>,
     pub wherearepneumat: Cow<'r, str>,
     pub whereare3dprint: Cow<'r, str>,
@@ -80,7 +80,9 @@ pub struct PitData<'r> {
     pub extracamerasuse: Cow<'r, bool>,
     pub automationviase: Cow<'r, bool>,
 
+    pub endgameabilitys: Cow<'r, str>,
     pub whatisyourfavor: Cow<'r, str>,
+    pub drivestationsum: Cow<'r, str>,
     pub arethereanyothe: Cow<'r, str>,
     pub password: Cow<'r, str>,
 }
