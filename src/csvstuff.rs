@@ -69,12 +69,12 @@ pub struct PitData<'r> {
     pub totalwheelsused: Cow<'r, i64>,
 
     pub endgameabilitys: Cow<'r, str>,
-    pub endgametraction: Cow<'r, i64>,
+    // pub endgametraction: Cow<'r, i64>,
     pub wherearepneumat: Cow<'r, str>,
     pub whereare3dprint: Cow<'r, str>,
 
     pub programmedautoc: Cow<'r, str>,
-    pub limelightcapabi: Cow<'r, str>,
+    // pub limelightcapabi: Cow<'r, str>,
     pub apriltagsused: Cow<'r, bool>,
     pub reflectivetapeu: Cow<'r, bool>,
     pub extracamerasuse: Cow<'r, bool>,
