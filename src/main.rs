@@ -59,7 +59,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.team.to_string(), 
         csv.matchnum.to_string(), 
         csv.absent.to_string().to_uppercase(), 
-        csv.name.to_string().replace(",", ""), 
+        csv.name.to_string(), 
         csv.location.to_string(), 
         csv.teamleftcommu.to_string().to_uppercase(), 
         csv.teamcollected.to_string().to_uppercase(), 
@@ -115,15 +115,15 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.chargestation.to_string().to_uppercase(), 
         // csv.links.to_string(),
         csv.anyrobotprobl.to_string(),
-        csv.fouls.to_string().replace(",", ""),
-        csv.extranotes.to_string().replace(",", ""),
-        csv.driveteamrati.to_string().replace(",", ""),
-        csv.playstylesumm.to_string().replace(",", ""),
+        csv.fouls.to_string(),
+        csv.extranotes.to_string(),
+        csv.driveteamrati.to_string(),
+        csv.playstylesumm.to_string(),
     ];
     for i in data.iter() {   // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i);
+        thing = format!("{}, ", i.replace(",", ""));
         if String::from(i) == csv.playstylesumm.to_string() {
-            thing = format!("{}", i)
+            thing = format!("{}", i.replace(",", ""))
         }
         owned_string.push_str(&thing)
     }
