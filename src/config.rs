@@ -1,8 +1,8 @@
-use config::{Config, ConfigError, Environment, File};
+use config::{Config, ConfigError, File};
 use serde::Deserialize;
 use std::collections::HashMap;
 type JsonMap = HashMap<String, serde_json::Value>;
-use std::{env, fs};
+use std::fs;
 
 
 // Function for trying out new things
@@ -29,27 +29,13 @@ pub struct Settings {
     // pub thing: Thing,
 }
 
-#[derive(Debug, Deserialize)]
-#[allow(unused)]
-pub struct Thing {
-    pub thing: String,
-    pub thin: Thin,
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(unused)]
-pub struct Thin {
-    pub urmom: String,
-}
-
-
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
-        let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
+        // let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
 
         let s = Config::builder()
             // Start off by merging in the "default" configuration file
-            .add_source(File::with_name("config.json"))
+            .add_source(File::with_name("settings.toml"))
             // Add in the current environment file
             // Default to 'development' env
             // Note that this file is _optional_
