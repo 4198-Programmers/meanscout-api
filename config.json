@@ -1,0 +1,19 @@
+{
+    "debug": true,
+    "datasets": {
+        "this sure is a dataset": {
+            "something": "no",
+            "category": {
+                "num": 0
+            },
+            "other category": {
+                "other num": 1,
+                "datapoint to be collected": "something"
+            }
+        },
+        "i'm not sure about this one": {
+            "not something": "yes"
+        }
+    }
+
+}

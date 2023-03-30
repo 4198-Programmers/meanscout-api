@@ -2,6 +2,8 @@
 // use rocket::response::status;
 use rocket::serde::json::Json;
 mod csvstuff;
+mod config;
+use std::collections::HashMap;
 use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::{Request, Response};
@@ -273,6 +275,13 @@ async fn logs() -> String {
 
 #[rocket::main]
 async fn main() {
+    if cfg!(debug_assertions) {
+        // let settings = config::Settings::new().unwrap();
+        // println!("{:?}", settings.thing.thin);
+        config::test();
+    }
+
+
     let config = rocket::Config::figment()
     // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
     .merge(("address", "0.0.0.0"))
