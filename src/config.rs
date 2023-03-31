@@ -47,7 +47,7 @@ pub fn convert_to_mean() -> std::io::Result<()> {
                     // println!("{:?}", item);
                     if !item.1.is_object() {
                         println!("{:?}", item);
-                        let metric = format!("  {{\"name\": \"{}\", \"type\": {}}}, ", item.0, item.1);
+                        let metric = format!("  {{\"name\": \"{}\", \"type\": {}}},", item.0, item.1);
                         writeln!(file, "{}", metric)?;
                     }
                     else {
@@ -55,7 +55,7 @@ pub fn convert_to_mean() -> std::io::Result<()> {
                             // println!("{:?}", category_items);
                             for asdf in category_items.iter() {
                                 println!("{:?}", asdf);
-                                let metric = format!("  {{\"name\": \"{}\", \"type\": {}}}, ", asdf.0, asdf.1);
+                                let metric = format!("  {{\"name\": \"{}\", \"type\": {}{}}},", asdf.0, asdf.1, if(asdf == category_items.iter().next().unwrap()) {format!(", \"group\": \"{}\"", item.0)} else {"".into()});
                                 writeln!(file, "{}", metric)?;
                             }
                         }
