@@ -1,18 +1,19 @@
 {
-    "debug": true,
     "datasets": {
-        "this sure is a dataset": {
-            "something": "no",
+        "dataset1": {
+            "something": "text",
             "category": {
-                "num": 0
+                "num": "number",
+                "a float": "select",
+                "timer?": "timer"
             },
             "other category": {
-                "other num": 1,
-                "datapoint to be collected": "something"
+                "other num": "number",
+                "datapoint to be collected": "text"
             }
         },
-        "i'm not sure about this one": {
-            "not something": "yes"
+        "dataset2": {
+            "not something": "text"
         }
     }
 
