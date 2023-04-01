@@ -8,22 +8,32 @@ use std::io::Write;
 
 
 // Function for trying out new things
+#[allow(unused)]
 pub fn test() {
     let path = "config.json";
     let data = fs::read_to_string(path).expect("Unable to read file");
     let res: JsonMap = serde_json::from_str(&data).expect("Unable to parse");
     let (_, data) = res.get_key_value("datasets").unwrap();
     let datasets: JsonMap = serde_json::from_str(&data.to_string()).expect("Unable to parse");
+    let f = fs::File::create("test.txt").unwrap();
+    let mut file = OpenOptions::new().write(true).append(true).open("test.txt").unwrap();
     for (key, value) in datasets.iter() {
         println!("{}: {}", key, value);
+        // writeln!(file, "{}: {}", key, value);
+        for dataset in value.as_object().iter() {
+            for item in dataset.iter() {
+                writeln!(file, "{}: {}", item.0, item.1);
+            }
+        }
         if value.is_object() {
             // println!("it sure is an object");
-            println!("{:?}", value.as_object().unwrap());
+            // println!("{:?}", value.as_object().unwrap());
         }
     }
     // println!("{:?}", res);
 }
 /// Converting config.json to json usable by meanscout
+#[allow(unused)]
 pub fn convert_to_mean() -> std::io::Result<()> {
     let path = "config.json";
     let data = fs::read_to_string(path).expect("Unable to read file");
@@ -31,12 +41,10 @@ pub fn convert_to_mean() -> std::io::Result<()> {
     let (_, data) = res.get_key_value("datasets").unwrap();
 
     let datasets: JsonMap = serde_json::from_str(&data.to_string()).expect("Unable to parse");
-    let mut i = 0; // variable to count datapoints
     for (key, value) in datasets.iter() {
         // println!("{}: {}", key, value);
         
         if value.is_object() {
-            i = 0;
             // Going over each item in the config file
             for dataset in value.as_object().iter() {
                 let f = fs::File::create(format!("meanscout/{}.json", key))?;
