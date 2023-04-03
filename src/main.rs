@@ -278,7 +278,7 @@ async fn main() {
     if cfg!(debug_assertions) {
         // let settings = config::Settings::new().unwrap();
         // println!("{:?}", settings.thing.thin);
-        config::test();
+        config::convert_to_mean();
     }
 
 
