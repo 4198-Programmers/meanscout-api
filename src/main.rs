@@ -5,6 +5,7 @@ use rocket::serde::json::Json;
 mod csvstuff;
 mod config;
 use std::collections::HashMap;
+use std::panic::catch_unwind;
 use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::{Request, Response};
@@ -393,6 +394,11 @@ async fn logs() -> String {
     contents
 }
 
+#[catch(404)]
+fn not_found(req: &Request) -> String {
+    format!("I couldn't find '{}'. Try something else?", req.uri())
+}
+
 #[rocket::main]
 async fn main() {
     if cfg!(debug_assertions) {
@@ -414,7 +420,8 @@ async fn main() {
     csvstuff::init_files();
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
+        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options, sensitive])  // Just put all of the routes in here
+        .register("/", catchers![not_found])
         .attach(CORS)
         .launch()
         .await;
