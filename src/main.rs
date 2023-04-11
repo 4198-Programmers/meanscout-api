@@ -1,4 +1,5 @@
 #[macro_use] extern crate rocket;
+use rocket::request::{self, FromRequest, Outcome};
 // use rocket::response::status;
 use rocket::serde::json::Json;
 mod csvstuff;
@@ -13,6 +14,38 @@ use std::io::Write;
 use chrono::{Datelike, Timelike, Local};
 use std::io::prelude::*;
 use std::fs::File;
+
+struct ApiKey<'r>(&'r str);
+
+#[derive(Debug)]
+enum ApiKeyError {
+    Missing,
+    Invalid,
+}
+
+// Request header checks
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for ApiKey<'r> {
+    type Error = ApiKeyError;
+
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        /// Returns true if `key` is a valid API key string.
+        fn is_valid(key: &str) -> bool {
+            key == "valid_api_key"
+        }
+
+        match req.headers().get_one("x-api-key") {
+            None => Outcome::Failure((Status::BadRequest, ApiKeyError::Missing)),
+            Some(key) if is_valid(key) => Outcome::Success(ApiKey(key)),
+            Some(_) => Outcome::Failure((Status::BadRequest, ApiKeyError::Invalid)),
+        }
+    }
+}
+
+#[get("/sensitive")]
+fn sensitive(key: ApiKey<'_>) -> &'static str {
+    "Sensitive data."
+}
 
 pub struct CORS;
 
@@ -365,7 +398,7 @@ async fn main() {
     if cfg!(debug_assertions) {
         // let settings = config::Settings::new().unwrap();
         // println!("{:?}", settings.thing.thin);
-        config::convert_to_mean();
+        // config::convert_to_mean();
     }
 
 
