@@ -434,9 +434,7 @@ macro_rules! error {
         .append(true)
         .open("logs/scouting.log")
         .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ ERROR ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
+        let _ = writeln!(file, "[ ERROR ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
     }};
 }
 
@@ -447,9 +445,7 @@ macro_rules! success {
         .append(true)
         .open("logs/scouting.log")
         .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ SUCCESS ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
+         let _ = writeln!(file, "[ SUCCESS ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
     }};
 }
 
@@ -460,8 +456,6 @@ macro_rules! warning {
         .append(true)
         .open("logs/scouting.log")
         .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ WARNING ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
+         let _ = writeln!(file, "[ WARNING ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
     }};
 }
