@@ -5,7 +5,7 @@ use rocket::serde::json::Json;
 mod csvstuff;
 mod config;
 use std::collections::HashMap;
-use std::panic::catch_unwind;
+// use std::panic::catch_unwind;
 use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::{Request, Response};
@@ -15,6 +15,13 @@ use std::io::Write;
 use chrono::{Datelike, Timelike, Local};
 use std::io::prelude::*;
 use std::fs::File;
+use chrono;
+
+// Just a silly little easter egg
+#[get("/teapot")]
+async fn teapot() -> Status {
+    Status::ImATeapot
+}
 
 struct ApiKey<'r>(&'r str);
 
@@ -67,7 +74,6 @@ impl Fairing for CORS {
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
-
 
 #[get("/")]
 async fn index() -> &'static str {
@@ -396,7 +402,26 @@ async fn logs() -> String {
 
 #[catch(404)]
 fn not_found(req: &Request) -> String {
+    warning!(format!("404 Not Found: {} attempted {}",req.client_ip().unwrap(), req.uri()));
     format!("I couldn't find '{}'. Try something else?", req.uri())
+}
+
+#[catch(400)]
+fn bad_request(req: &Request) -> String {
+    warning!(format!("400 Bad Request: {} attempted {}",req.client_ip().unwrap(), req.uri()));
+    format!("I couldn't find '{}'. Try something else?", req.uri())
+}
+
+#[catch(418)]
+fn im_a_teapot(req: &Request) -> String {
+    warning!(format!("418 I'm a teapot: How."));
+    format!("I don't know how you did this.")
+}
+
+#[catch(default)]
+fn default_catcher(req: &Request) -> String {
+    warning!(format!("Unknown Code: {} attempted {}",req.client_ip().unwrap(), req.uri()));
+    format!("Something sure happened when you went to '{}'. Try something else?", req.uri())
 }
 
 #[rocket::main]
@@ -420,8 +445,8 @@ async fn main() {
     csvstuff::init_files();
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options, sensitive])  // Just put all of the routes in here
-        .register("/", catchers![not_found])
+        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options, sensitive, teapot])  // Just put all of the routes in here
+        .register("/", catchers![not_found, default_catcher, im_a_teapot])
         .attach(CORS)
         .launch()
         .await;
