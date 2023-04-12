@@ -2,6 +2,9 @@
 name = "meanapi"
 version = "1.0.0"
 edition = "2021"
+authors = ["Aiden Lee <aidenjlee9478@gmail.com>"]
+description = "The scouting API backend for FRC Team 4198"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
