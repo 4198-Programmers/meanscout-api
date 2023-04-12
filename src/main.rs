@@ -23,6 +23,8 @@ async fn teapot() -> Status {
     Status::ImATeapot
 }
 
+
+// A basic implementation of Catching Headers
 struct ApiKey<'r>(&'r str);
 
 #[derive(Debug)]
@@ -84,6 +86,12 @@ async fn index() -> &'static str {
 #[options("/<_..>")]
 fn all_options() {
     /* Intentionally left empty */
+}
+
+// Mainly so it doesn't keep returning 404 on any webpage that's pulled up on here
+#[get("/favicon.ico")]
+async fn favicon() -> Option<NamedFile> {
+    NamedFile::open("favicon.ico").await.ok()
 }
 
 // Accepting POST requests from Meanscout
@@ -173,6 +181,7 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     return Status::Accepted    // Returns accepted status when done
 }
 
+#[allow(unused)]
 #[post("/scoutingnew", data="<csv>")]
 async fn scouting_post_test(csv: Json<csvstuff::FormData<'_>>) -> Status {
     // Array for storing the passwords
