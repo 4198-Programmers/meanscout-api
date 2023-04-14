@@ -17,6 +17,8 @@ use std::io::prelude::*;
 use std::fs::File;
 use chrono;
 
+mod catchers;
+
 // Just a silly little easter egg
 #[get("/teapot")]
 async fn teapot() -> Status {
@@ -409,30 +411,6 @@ async fn logs() -> String {
     contents
 }
 
-#[catch(404)]
-fn not_found(req: &Request) -> String {
-    warning!(format!("404 Not Found: {} attempted {}",req.client_ip().unwrap(), req.uri()));
-    format!("I couldn't find '{}'. Try something else?", req.uri())
-}
-
-#[catch(400)]
-fn bad_request(req: &Request) -> String {
-    warning!(format!("400 Bad Request: {} attempted {}",req.client_ip().unwrap(), req.uri()));
-    format!("I couldn't find '{}'. Try something else?", req.uri())
-}
-
-#[catch(418)]
-fn im_a_teapot(req: &Request) -> String {
-    warning!(format!("418 I'm a teapot: How."));
-    format!("I don't know how you did this.")
-}
-
-#[catch(default)]
-fn default_catcher(req: &Request) -> String {
-    warning!(format!("Unknown Code: {} attempted {}",req.client_ip().unwrap(), req.uri()));
-    format!("Something sure happened when you went to '{}'. Try something else?", req.uri())
-}
-
 #[rocket::main]
 async fn main() {
     if cfg!(debug_assertions) {
@@ -455,7 +433,13 @@ async fn main() {
     success!("Started API");
     let _ = rocket::custom(config)
         .mount("/", routes![favicon, index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options, sensitive, teapot])  // Just put all of the routes in here
-        .register("/", catchers![not_found, default_catcher, im_a_teapot])
+        .register("/", catchers![
+            catchers::default_catcher,  // All of the status code catchers put in catchers.rs goes here
+            catchers::not_found,
+            catchers::im_a_teapot,
+            catchers::bad_request,
+            catchers::content_too_large,
+        ])
         .attach(CORS)
         .launch()
         .await;
