@@ -14,6 +14,12 @@ pub fn bad_request(req: &Request) -> String {
     format!("Bad request to '{}, try again later or change data'", req.uri())
 }
 
+#[catch(403)]
+pub fn forbidden(req: &Request) -> String {
+    warning!(format!("400: forbidden \n  > ip: {}\n  > uri: {}",req.client_ip().unwrap(), req.uri()));
+    format!("Forbidden request to '{}, try again later or change data'", req.uri())
+}
+
 #[catch(404)]
 pub fn not_found(req: &Request) -> String {
     warning!(format!("404: Not Found \n  > ip: {}\n  > uri: {}",req.client_ip().unwrap(), req.uri()));

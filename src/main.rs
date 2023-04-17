@@ -439,6 +439,7 @@ async fn main() {
             catchers::im_a_teapot,
             catchers::bad_request,
             catchers::content_too_large,
+            catchers::forbidden,
         ])
         .attach(CORS)
         .launch()
