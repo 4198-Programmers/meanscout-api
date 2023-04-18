@@ -1,5 +1,6 @@
 use rocket::Request;
 use crate::warning;
+use crate::settings;
 use std::io::Write;
 
 #[catch(default)]

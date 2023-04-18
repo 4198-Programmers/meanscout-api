@@ -3,7 +3,7 @@ use rocket::request::{self, FromRequest, Outcome};
 // use rocket::response::status;
 use rocket::serde::json::Json;
 mod csvstuff;
-mod config;
+mod settings;
 use std::collections::HashMap;
 // use std::panic::catch_unwind;
 use rocket::fs::NamedFile;
@@ -447,22 +447,11 @@ async fn main() {
 }
 
 #[macro_export]
-macro_rules! error {
-    ( $x:expr ) => {{    
-        let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open("logs/scouting.log")
-        .unwrap();
-        let _ = writeln!(file, "[ ERROR ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
-    }};
-}
-
-#[macro_export]
 macro_rules! success {
     ( $x:expr ) => {{    
         let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("logs/scouting.log")
+        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
         .unwrap();
          let _ = writeln!(file, "[ SUCCESS ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
     }};
@@ -473,8 +462,19 @@ macro_rules! warning {
     ( $x:expr ) => {{    
         let mut file = std::fs::OpenOptions::new()
         .append(true)
-        .open("logs/scouting.log")
+        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
         .unwrap();
          let _ = writeln!(file, "[ WARNING ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
+    }};
+}
+
+#[macro_export]
+macro_rules! error {
+    ( $x:expr ) => {{    
+        let mut file = std::fs::OpenOptions::new()
+        .append(true)
+        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+        .unwrap();
+        let _ = writeln!(file, "[ ERROR ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
     }};
 }

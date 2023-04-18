@@ -6,10 +6,21 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 
+#[allow(unused)]
+pub fn settings() -> std::io::Result<Config> {
+    let settings = Config::builder()
+        // Add in `./Settings.toml`
+        .add_source(config::File::with_name("settings.toml"))
+        // Add in settings from the environment (with a prefix of APP)
+        // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
+        // .add_source(config::Environment::with_prefix("APP"))
+        .build().unwrap();
+    Ok(settings)
+}
 
 // Function for trying out new things
 #[allow(unused)]
-pub fn test() {
+pub fn test() -> std::io::Result<()> {
     let path = "config.json";
     let data = fs::read_to_string(path).expect("Unable to read file");
     let res: JsonMap = serde_json::from_str(&data).expect("Unable to parse");
@@ -17,21 +28,38 @@ pub fn test() {
     let datasets: JsonMap = serde_json::from_str(&data.to_string()).expect("Unable to parse");
     let f = fs::File::create("test.txt").unwrap();
     let mut file = OpenOptions::new().write(true).append(true).open("test.txt").unwrap();
+    let mut datapoint: Option<&str>;
+
+    let mut data_list: Vec<&str> = vec![];
+
+    // Returning each dataset
     for (key, value) in datasets.iter() {
-        println!("{}: {}", key, value);
-        // writeln!(file, "{}: {}", key, value);
+        // println!("{}: {}", key, value);
+        writeln!(file, "{}: {}", key, value);
+
+        // Actually iterates over each dataset
         for dataset in value.as_object().iter() {
+            // Iterates from each individual item from each dataset
             for item in dataset.iter() {
-                writeln!(file, "{}: {}", item.0, item.1);
+                // writeln!(file, "{}: {}", item.0, item.1);
+                if item.1.is_object() {
+                    // println!("{:?}", item.1.as_object());
+                    for data in item.1.as_object().iter() {
+                        println!("{:?}", data);
+                    }
+                }
+                else {
+                    datapoint = item.1.as_str();
+                    if datapoint.is_some() {data_list.push(datapoint.unwrap())}
+                }
             }
         }
-        if value.is_object() {
-            // println!("it sure is an object");
-            // println!("{:?}", value.as_object().unwrap());
-        }
     }
+    println!("{:?}", data_list);
+    Ok(())
     // println!("{:?}", res);
 }
+
 /// Converting config.json to json usable by meanscout
 #[allow(unused)]
 pub fn convert_to_mean() -> std::io::Result<()> {
@@ -43,36 +71,30 @@ pub fn convert_to_mean() -> std::io::Result<()> {
     let datasets: JsonMap = serde_json::from_str(&data.to_string()).expect("Unable to parse");
     for (key, value) in datasets.iter() {
         // println!("{}: {}", key, value);
-        
-        if value.is_object() {
             // Going over each item in the config file
-            for dataset in value.as_object().iter() {
-                let f = fs::File::create(format!("meanscout/{}.json", key))?;
-                let mut file = OpenOptions::new().write(true).append(true).open(format!("meanscout/{}.json", key))?;
-                writeln!(file, "{{\n\"metrics\": [\n")?;
-                // println!("{:?}\n\n", dataset);
-                for item in dataset.iter() {
-                    // println!("{:?}", item);
-                    if !item.1.is_object() {
-                        println!("{:?}", item);
-                        let metric = format!("  {{\"name\": \"{}\", \"type\": {}}},", item.0, item.1);
-                        writeln!(file, "{}", metric)?;
-                    }
-                    else {
-                        for category_items in item.1.as_object() {
-                            // println!("{:?}", category_items);
-                            for asdf in category_items.iter() {
-                                println!("{:?}", asdf);
-                                let metric = format!("  {{\"name\": \"{}\", \"type\": {}{}}},", asdf.0, asdf.1, if(asdf == category_items.iter().next().unwrap()) {format!(", \"group\": \"{}\"", item.0)} else {"".into()});
-                                writeln!(file, "{}", metric)?;
-                            }
+        for dataset in value.as_object().iter() {
+            let f = fs::File::create(format!("meanscout/{}.json", key))?;
+            let mut file = OpenOptions::new().write(true).append(true).open(format!("meanscout/{}.json", key))?;
+            writeln!(file, "{{\n\"metrics\": [\n")?;
+            // println!("{:?}\n\n", dataset);
+            for item in dataset.iter() {
+                // println!("{:?}", item);
+                if !item.1.is_object() {
+                    println!("{:?}", item);
+                    let metric = format!("  {{\"name\": \"{}\", \"type\": {}}},", item.0, item.1);
+                    writeln!(file, "{}", metric)?;
+                }
+                else {
+                    for category_items in item.1.as_object() {
+                        // println!("{:?}", category_items);
+                        for asdf in category_items.iter() {
+                            let metric = format!("  {{\"name\": \"{}\", \"type\": {}{}}},", asdf.0, asdf.1, if(Some(asdf) == category_items.iter().next()) {format!(", \"group\": \"{}\"", item.0)} else {"".into()});
+                            writeln!(file, "{}", metric)?;
                         }
                     }
                 }
-
-                writeln!(file, "\n]\n}}")?;
-
             }
+            writeln!(file, "\n]\n}}")?;
         }
     }
     Ok(())
@@ -82,7 +104,7 @@ pub fn convert_to_mean() -> std::io::Result<()> {
 #[allow(unused)]
 pub struct Settings {
     pub debug: bool,
-    // pub thing: Thing,
+    pub logs_dir: String,
 }
 
 impl Settings {
