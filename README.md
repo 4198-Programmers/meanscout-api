@@ -2,6 +2,7 @@
 > **Warning** 
 <br />THIS IS THE NEW BRANCH
 <br/> IF YOU WOULD LIKE TO RUN THIS, SWITCH TO THE MAIN BRANCH
+<br/> MANY AREAS MENTIONING SPECIFIC LINES IN THIS README ARE ALSO PROBABLY WRONG 
 
 An attempt at making the meanscout api in rust for maybe better safety<br>
 (and honestly I trust this version a lot more)
