@@ -4,6 +4,7 @@ use std::io::Write;
 use serde::{Serialize, Deserialize};
 use std::borrow::Cow;
 use std::fs;
+use crate::settings;
 
 /// Struct for the form data
 #[derive(Serialize, Deserialize, Debug)]
@@ -105,7 +106,8 @@ pub struct FormDataTest<'r> {
 }
 
 /// Initializing the data file
-pub fn init_files() {
+pub fn init_files() -> std::io::Result<(),> {
+    let settingsstuff = settings::Settings::new();
     if !file_exists("data.csv") {
         let _userfile = File::create("data.csv");
     }
