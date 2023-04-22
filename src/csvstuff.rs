@@ -5,6 +5,9 @@ use serde::{Serialize, Deserialize};
 use std::borrow::Cow;
 use std::fs;
 use crate::settings;
+use std::error::Error;
+use config::{ConfigError, Config};
+
 
 /// Struct for the form data
 #[derive(Serialize, Deserialize, Debug)]
@@ -106,8 +109,8 @@ pub struct FormDataTest<'r> {
 }
 
 /// Initializing the data file
-pub fn init_files() -> std::io::Result<(),> {
-    let settingsstuff = settings::Settings::new();
+pub fn init_files() -> Result<(), Box<dyn Error>> {
+    let settingsstuff = settings::Settings::new()?;
     if !file_exists("data.csv") {
         let _userfile = File::create("data.csv");
     }
@@ -120,7 +123,10 @@ pub fn init_files() -> std::io::Result<(),> {
     if !file_exists("test.csv") {
         let _userfile = File::create("test.csv");
     }
-    return
+    if !file_exists(&settingsstuff.logs_dir) {
+        let _userfile = File::create(&settingsstuff.logs_dir);
+    }
+    Ok(())
 }
 
 /// Checks if file exists
