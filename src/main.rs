@@ -432,7 +432,19 @@ async fn main() {
     csvstuff::init_files();
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![favicon, index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options, sensitive, teapot])  // Just put all of the routes in here
+        .mount("/", routes![
+            favicon, 
+            index, 
+            scouting_post, 
+            test_post, 
+            scouting_get, 
+            logs, 
+            scouting_delete, 
+            pits_post, 
+            all_options, 
+            sensitive, 
+            teapot
+        ])  // Just put all of the routes in here
         .register("/", catchers![
             catchers::default_catcher,  // All of the status code catchers put in catchers.rs goes here
             catchers::not_found,
