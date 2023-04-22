@@ -135,39 +135,39 @@ pub fn file_exists(file: &str) -> bool {
 }
 
 /// Adds to data.csv
-pub fn append_csv(content: &str) {
-    init_files();
+pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
+    init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
       .open("data.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
-    return;
+    Ok(())
 }
 
 /// Instead adds to the garbage data csv
-pub fn test_csv(content: &str) {
-    init_files();
+pub fn test_csv(content: &str) -> Result<(), Box<dyn Error>> {
+    init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
       .open("test.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
-    return;
+    Ok(())
 }
 
 /// Adds to data.csv
-pub fn append_pits(content: &str) {
-    init_files();
+pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
+    init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
       .open("pits.csv")
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
-    return
+    Ok(())
 }
 
 /// Wipes data.csv
