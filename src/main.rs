@@ -55,7 +55,7 @@ impl<'r> FromRequest<'r> for ApiKey<'r> {
 }
 
 #[get("/sensitive")]
-fn sensitive(key: ApiKey<'_>) -> &'static str {
+fn sensitive(_key: ApiKey<'_>) -> &'static str {
     "Sensitive data."
 }
 
@@ -179,7 +179,11 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         }
         owned_string.push_str(&thing)
     }
-    csvstuff::append_csv(&owned_string);    // Adds the information to data.csv
+    match csvstuff::append_csv(&owned_string) {
+        Ok(_e) => {},
+        Err(error) => {error!(format!("Uh oh, {}", error))}
+
+    }    // Adds the information to data.csv
     return Status::Accepted    // Returns accepted status when done
 }
 
@@ -266,7 +270,11 @@ async fn scouting_post_test(csv: Json<csvstuff::FormData<'_>>) -> Status {
         }
         owned_string.push_str(&thing)
     }
-    csvstuff::append_csv(&owned_string);    // Adds the information to data.csv
+    match csvstuff::append_csv(&owned_string) {
+        Ok(_e) => {},
+        Err(error) => {error!(format!("Uh oh, {}", error))}
+
+    }    // Adds the information to data.csv
     return Status::Accepted    // Returns accepted status when done
 }
 
@@ -325,7 +333,11 @@ async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         }
         owned_string.push_str(&thing)
     }
-    csvstuff::test_csv(&owned_string);    // Adds the information to tes.ctsv
+    match csvstuff::append_csv(&owned_string) {
+        Ok(_e) => {},
+        Err(error) => {error!(format!("Uh oh, {}", error))}
+
+    }    // Adds the information to tes.ctsv
     return Status::Accepted    // Returns accepted status when done
 }
 
@@ -384,7 +396,11 @@ async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
         }
         owned_string.push_str(&thing)
     }
-    csvstuff::append_pits(&owned_string);    // Adds the information to data.csv
+    match csvstuff::append_csv(&owned_string) {
+        Ok(_e) => {},
+        Err(error) => {error!(format!("Uh oh, {}", error))}
+
+    }    // Adds the information to data.csv
     return Status::Accepted    // Returns accepted status when done
 }
 
@@ -429,7 +445,11 @@ async fn main() {
     .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
     .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
-    csvstuff::init_files();
+    match csvstuff::init_files() {
+        Ok(_e) => {},
+        Err(error) => {error!(format!("Uh oh, {}", error))}
+
+    }
     success!("Started API");
     let _ = rocket::custom(config)
         .mount("/", routes![
