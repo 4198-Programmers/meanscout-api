@@ -1,2 +1,5 @@
 debug = false
 logs_dir = "logs/scouting.log"
+pits_data = "pits.csv"
+stands_data = "data.csv"
+test_data = "test.csv"

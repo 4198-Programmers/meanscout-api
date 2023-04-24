@@ -110,21 +110,21 @@ pub struct FormDataTest<'r> {
 
 /// Initializing the data file
 pub fn init_files() -> Result<(), Box<dyn Error>> {
-    let settingsstuff = settings::Settings::new()?;
-    if !file_exists("data.csv") {
-        let _userfile = File::create("data.csv");
+    let settings_stuff = settings::Settings::new()?;
+    if !file_exists(&settings_stuff.stands_data) {
+        let _userfile = File::create(&settings_stuff.stands_data);
     }
-    if !file_exists("pits.csv") {
-        let _userfile = File::create("pits.csv");
+    if !file_exists(&settings_stuff.pits_data) {
+        let _userfile = File::create(&settings_stuff.pits_data);
     }
-    if !file_exists("logs/scouting.log") {
-        let _userfile = File::create("logs/scouting.log");
+    if !file_exists(&settings_stuff.logs_dir) {
+        let _userfile = File::create(&settings_stuff.logs_dir);
     }
-    if !file_exists("test.csv") {
-        let _userfile = File::create("test.csv");
+    if !file_exists(&settings_stuff.test_data) {
+        let _userfile = File::create(&settings_stuff.test_data);
     }
-    if !file_exists(&settingsstuff.logs_dir) {
-        let _userfile = File::create(&settingsstuff.logs_dir);
+    if !file_exists(&settings_stuff.logs_dir) {
+        let _userfile = File::create(&settings_stuff.logs_dir);
     }
     Ok(())
 }
