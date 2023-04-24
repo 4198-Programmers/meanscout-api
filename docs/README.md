@@ -1,3 +1,3 @@
 # Documentation
 
-Not quite sure what I want to use for documentation, will either use mdbook, or obsidian. Both have their pros and cons
+Will eventually start using obsidian for some documentation for everything, might use mdBook for really in depth stuff
