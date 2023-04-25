@@ -1,4 +1,5 @@
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 use rocket::request::{FromRequest, Outcome};
 // use rocket::response::status;
 use rocket::serde::json::Json;
@@ -6,16 +7,16 @@ mod csvstuff;
 mod settings;
 // use std::collections::HashMap;
 // use std::panic::catch_unwind;
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::fs::NamedFile;
 use rocket::http::Header;
-use rocket::{Request, Response};
-use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
+use rocket::{Request, Response};
 use std::io::Write;
 // use chrono::{Datelike, Timelike, Local};
-use std::io::prelude::*;
-use std::fs::File;
 use chrono;
+use std::fs::File;
+use std::io::prelude::*;
 
 mod catchers;
 
@@ -24,7 +25,6 @@ mod catchers;
 async fn teapot() -> Status {
     Status::ImATeapot
 }
-
 
 // A basic implementation of Catching Headers
 struct ApiKey<'r>(&'r str);
@@ -67,13 +67,16 @@ impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
             name: "Add CORS headers to responses",
-            kind: Kind::Response
+            kind: Kind::Response,
         }
     }
 
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "POST, GET, PATCH, OPTIONS",
+        ));
         response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
@@ -97,14 +100,16 @@ async fn favicon() -> Option<NamedFile> {
 }
 
 // Accepting POST requests from Meanscout
-#[post("/scouting", data="<csv>")]
+#[post("/scouting", data = "<csv>")]
 async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     // Array for storing the passwords
     let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
+
+    if passwords.contains(&csv.password.to_string()) == false {
+        return Status::Unauthorized;
+    } // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned(); // String for later to append to
+    let mut thing: String; // Placeholder string
 
     // Puts all of the data into a vector/array
     let data = [
@@ -172,7 +177,8 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.driveteamrati.to_string(),
         csv.playstylesumm.to_string(),
     ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
+    for i in data.iter() {
+        // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i.replace(",", ""));
         if String::from(i) == csv.playstylesumm.to_string() {
             thing = format!("{}", i.replace(",", ""))
@@ -180,22 +186,25 @@ async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         owned_string.push_str(&thing)
     }
     match csvstuff::append_csv(&owned_string) {
-        Ok(_e) => {},
-        Err(error) => {error!(format!("Uh oh, {}", error))}
-
-    }    // Adds the information to data.csv
-    return Status::Accepted    // Returns accepted status when done
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error))
+        }
+    } // Adds the information to data.csv
+    return Status::Accepted; // Returns accepted status when done
 }
 
 #[allow(unused)]
-#[post("/scoutingnew", data="<csv>")]
+#[post("/scoutingnew", data = "<csv>")]
 async fn scouting_post_test(csv: Json<csvstuff::FormData<'_>>) -> Status {
     // Array for storing the passwords
     let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
+
+    if passwords.contains(&csv.password.to_string()) == false {
+        return Status::Unauthorized;
+    } // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned(); // String for later to append to
+    let mut thing: String; // Placeholder string
 
     // Puts all of the data into a vector/array
     let data = [
@@ -263,7 +272,8 @@ async fn scouting_post_test(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.driveteamrati.to_string(),
         csv.playstylesumm.to_string(),
     ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
+    for i in data.iter() {
+        // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i.replace(",", ""));
         if String::from(i) == csv.playstylesumm.to_string() {
             thing = format!("{}", i.replace(",", ""))
@@ -271,23 +281,25 @@ async fn scouting_post_test(csv: Json<csvstuff::FormData<'_>>) -> Status {
         owned_string.push_str(&thing)
     }
     match csvstuff::append_csv(&owned_string) {
-        Ok(_e) => {},
-        Err(error) => {error!(format!("Uh oh, {}", error))}
-
-    }    // Adds the information to data.csv
-    return Status::Accepted    // Returns accepted status when done
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error))
+        }
+    } // Adds the information to data.csv
+    return Status::Accepted; // Returns accepted status when done
 }
 
-
 // Accepting POST requests from Meanscout
-#[post("/test", data="<csv>")]
+#[post("/test", data = "<csv>")]
 async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
     // Array for storing the passwords
     let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
+
+    if passwords.contains(&csv.password.to_string()) == false {
+        return Status::Unauthorized;
+    } // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned(); // String for later to append to
+    let mut thing: String; // Placeholder string
 
     // Puts all of the data into a vector/array
     let data = [
@@ -326,31 +338,34 @@ async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
         csv.driveteamrati.to_string().replace(",", ""),
         csv.playstylesumm.to_string().replace(",", ""),
     ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
+    for i in data.iter() {
+        // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
         if String::from(i) == csv.playstylesumm.to_string() {
             thing = format!("{}", i)
         }
         owned_string.push_str(&thing)
     }
-    match csvstuff::append_csv(&owned_string) {
-        Ok(_e) => {},
-        Err(error) => {error!(format!("Uh oh, {}", error))}
-
-    }    // Adds the information to tes.ctsv
-    return Status::Accepted    // Returns accepted status when done
+    match csvstuff::append_test(&owned_string) {
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error))
+        }
+    } // Adds the information to tes.ctsv
+    return Status::Accepted; // Returns accepted status when done
 }
 
-
 // Accepting POST requests from Meanscout
-#[post("/pits", data="<csv>")]
+#[post("/pits", data = "<csv>")]
 async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     // Array for storing the passwords
     let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
+
+    if passwords.contains(&csv.password.to_string()) == false {
+        return Status::Unauthorized;
+    } // If the json interpreted doesn't have the right password, it's bad
+    let mut owned_string: String = "".to_owned(); // String for later to append to
+    let mut thing: String; // Placeholder string
 
     // Puts all of the data into a vector/array
     let data = [
@@ -389,26 +404,28 @@ async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
     csv.drivestationsum.to_string().replace(",", ""),
     csv.arethereanyothe.to_string().replace(",", ""),
     ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
+    for i in data.iter() {
+        // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i);
         if String::from(i) == csv.arethereanyothe.to_string() {
             thing = format!("{}", i)
         }
         owned_string.push_str(&thing)
     }
-    match csvstuff::append_csv(&owned_string) {
-        Ok(_e) => {},
-        Err(error) => {error!(format!("Uh oh, {}", error))}
-
-    }    // Adds the information to data.csv
-    return Status::Accepted    // Returns accepted status when done
+    match csvstuff::append_pits(&owned_string) {
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error))
+        }
+    } // Adds the information to data.csv
+    return Status::Accepted; // Returns accepted status when done
 }
 
 
 // When you send a GET request or open it in a web browser it will send the file for data.csv
 #[get("/scouting")]
-async fn scouting_get() -> Option<NamedFile>{
-    NamedFile::open("data.csv").await.ok()    // Returns the filename
+async fn scouting_get() -> Option<NamedFile> {
+    NamedFile::open("data.csv").await.ok() // Returns the filename
 }
 
 // Function for accepting DELETE requests to delete data.csv
@@ -423,7 +440,8 @@ async fn scouting_delete() -> String {
 async fn logs() -> String {
     let mut file = File::open("logs/scouting.log").expect("Unable to open the file");
     let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Unable to read the file");
+    file.read_to_string(&mut contents)
+        .expect("Unable to read the file");
     contents
 }
 
@@ -446,33 +464,40 @@ async fn main() {
     .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
     match csvstuff::init_files() {
-        Ok(_e) => {},
-        Err(error) => {error!(format!("Uh oh, {}", error))}
-
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error))
+        }
     }
     success!("Started API");
     let _ = rocket::custom(config)
-        .mount("/", routes![
-            favicon, 
-            index, 
-            scouting_post, 
-            test_post, 
-            scouting_get, 
-            logs, 
-            scouting_delete, 
-            pits_post, 
-            all_options, 
-            sensitive, 
-            teapot
-        ])  // Just put all of the routes in here
-        .register("/", catchers![
-            catchers::default_catcher,  // All of the status code catchers put in catchers.rs goes here
-            catchers::not_found,
-            catchers::im_a_teapot,
-            catchers::bad_request,
-            catchers::content_too_large,
-            catchers::forbidden,
-        ])
+        .mount(
+            "/",
+            routes![
+                favicon,
+                index,
+                scouting_post,
+                test_post,
+                scouting_get,
+                logs,
+                scouting_delete,
+                pits_post,
+                all_options,
+                sensitive,
+                teapot
+            ],
+        ) // Just put all of the routes in here
+        .register(
+            "/",
+            catchers![
+                catchers::default_catcher, // All of the status code catchers put in catchers.rs goes here
+                catchers::not_found,
+                catchers::im_a_teapot,
+                catchers::bad_request,
+                catchers::content_too_large,
+                catchers::forbidden,
+            ],
+        )
         .attach(CORS)
         .launch()
         .await;
@@ -480,33 +505,48 @@ async fn main() {
 
 #[macro_export]
 macro_rules! success {
-    ( $x:expr ) => {{    
+    ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
-        .unwrap();
-         let _ = writeln!(file, "[ SUCCESS ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
+            .append(true)
+            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .unwrap();
+        let _ = writeln!(
+            file,
+            "[ SUCCESS ] {} - {}",
+            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+            format!("{}", $x)
+        );
     }};
 }
 
 #[macro_export]
 macro_rules! warning {
-    ( $x:expr ) => {{    
+    ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
-        .unwrap();
-         let _ = writeln!(file, "[ WARNING ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
+            .append(true)
+            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .unwrap();
+        let _ = writeln!(
+            file,
+            "[ WARNING ] {} - {}",
+            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+            format!("{}", $x)
+        );
     }};
 }
 
 #[macro_export]
 macro_rules! error {
-    ( $x:expr ) => {{    
+    ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
-        .unwrap();
-        let _ = writeln!(file, "[ ERROR ] {} - {}", chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"), format!("{}", $x));    
+            .append(true)
+            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .unwrap();
+        let _ = writeln!(
+            file,
+            "[ ERROR ] {} - {}",
+            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+            format!("{}", $x)
+        );
     }};
 }
