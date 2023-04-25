@@ -137,9 +137,10 @@ pub fn file_exists(file: &str) -> bool {
 /// Adds to data.csv
 pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
     init_files()?;
+    let settings_stuff = settings::Settings::new()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open("data.csv")
+      .open(&settings_stuff.stands_data)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -147,11 +148,12 @@ pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
 }
 
 /// Instead adds to the garbage data csv
-pub fn test_csv(content: &str) -> Result<(), Box<dyn Error>> {
+pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
+    let settings_stuff = settings::Settings::new()?;
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open("test.csv")
+      .open(&settings_stuff.test_data)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -160,10 +162,11 @@ pub fn test_csv(content: &str) -> Result<(), Box<dyn Error>> {
 
 /// Adds to data.csv
 pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
+    let settings_stuff = settings::Settings::new()?;
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open("pits.csv")
+      .open(&settings_stuff.pits_data)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
