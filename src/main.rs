@@ -1,23 +1,21 @@
 #[macro_use]
 extern crate rocket;
+use chrono;
+
 use rocket::request::{FromRequest, Outcome};
-// use rocket::response::status;
 use rocket::serde::json::Json;
-mod csvstuff;
-mod settings;
-// use std::collections::HashMap;
-// use std::panic::catch_unwind;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::http::Status;
 use rocket::{Request, Response};
+
 use std::io::Write;
-// use chrono::{Datelike, Timelike, Local};
-use chrono;
 use std::fs::File;
 use std::io::prelude::*;
 
+mod csvstuff;
+mod settings;
 mod catchers;
 
 // Just a silly little easter egg
