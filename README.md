@@ -10,6 +10,7 @@ An attempt at making the meanscout api in rust for maybe better safety<br>
 This API is made for the companion webapp we forked from Aidan Linerud of FRC Team 2471, [Meanscout](https://github.com/4198-Programmers/MeanScout_4198). The exact version of Meanscout we use is under the main branch located [here](https://github.com/4198-Programmers/MeanScout_4198/tree/main). The API is made to intake and process the data coming from Meanscout. It will then put it into the file `data.csv`.
 
 ## How to use
+In the future I plan on putting it on crates.io so you can just run `cargo install meanscout` or something along those lines
 
 ### Running
 You can just use it by running `cargo run` in the directory the project is located
