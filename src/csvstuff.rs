@@ -6,7 +6,14 @@ use std::borrow::Cow;
 use std::fs;
 use crate::settings;
 use std::error::Error;
-use config::{ConfigError, Config};
+// use config::{ConfigError, Config};
+
+
+#[derive(Serialize, Deserialize)]
+pub struct Data {
+    pub data: serde_json::Map<String, serde_json::Value>,
+}
+
 
 
 /// Struct for the form data

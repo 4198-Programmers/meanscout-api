@@ -9,6 +9,7 @@ use rocket::fs::NamedFile;
 use rocket::http::Header;
 use rocket::http::Status;
 use rocket::{Request, Response};
+use serde_json::Value;
 
 use std::io::Write;
 use std::fs::File;
@@ -98,89 +99,106 @@ async fn favicon() -> Option<NamedFile> {
 }
 
 // Accepting POST requests from Meanscout
-#[post("/scouting", data = "<csv>")]
-async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
+#[post("/scouting", format = "json", data = "<json>")]
+async fn scouting_post(json: String) -> Status {
     // Array for storing the passwords
-    let passwords = ["ChangeMe!".to_string()];
+    let passwords = ["ChangeMe!".to_string(), "password".to_string()];
 
-    if passwords.contains(&csv.password.to_string()) == false {
+    let mut file = std::fs::OpenOptions::new()
+      .append(true)
+      .open("test.json")
+      .unwrap();
+    
+    let _ = writeln!(file, "{}", format!("{}", json));
+
+    let data: csvstuff::Data = serde_json::from_str(&json).unwrap();
+    if passwords.contains(&data.data.get_key_value("password").unwrap().1.as_str().unwrap().to_string()) == false {
         return Status::Unauthorized;
     } // If the json interpreted doesn't have the right password, it's bad
     let mut owned_string: String = "".to_owned(); // String for later to append to
     let mut thing: String; // Placeholder string
 
+
     // Puts all of the data into a vector/array
-    let data = [
-        csv.team.to_string(), 
-        csv.matchnum.to_string(), 
-        csv.absent.to_string().to_uppercase(), 
-        csv.name.to_string(), 
-        csv.location.to_string(), 
-        csv.teamleftcommu.to_string().to_uppercase(), 
-        csv.teamcollected.to_string().to_uppercase(), 
-        csv.autochargesta.to_string(),
-        // format!("{:?}", csv.toggletesting),
-        csv.toggletesting[0].value.to_string(),
-        csv.toggletesting[1].value.to_string(),
-        csv.toggletesting[2].value.to_string(),
-        csv.toggletesting[3].value.to_string(),
-        csv.toggletesting[4].value.to_string(),
-        csv.toggletesting[5].value.to_string(),
-        csv.toggletesting[6].value.to_string(),
-        csv.toggletesting[7].value.to_string(),
-        csv.toggletesting[8].value.to_string(),
-        csv.toggletesting[9].value.to_string(),
-        csv.toggletesting[10].value.to_string(),
-        csv.toggletesting[11].value.to_string(),
-        csv.toggletesting[12].value.to_string(),
-        csv.toggletesting[13].value.to_string(),
-        csv.toggletesting[14].value.to_string(),
-        csv.toggletesting[15].value.to_string(),
-        csv.toggletesting[16].value.to_string(),
-        csv.toggletesting[17].value.to_string(),
-        csv.toggletesting[18].value.to_string(),
-        csv.toggletesting[19].value.to_string(),
-        csv.toggletesting[20].value.to_string(),
-        csv.toggletesting[21].value.to_string(),
-        csv.toggletesting[22].value.to_string(),
-        csv.toggletesting[23].value.to_string(),
-        csv.toggletesting[24].value.to_string(),
-        csv.toggletesting[25].value.to_string(),
-        csv.toggletesting[26].value.to_string(),
-        
-        // csv.topcubes.to_string(), 
-        // csv.bottomcubes.to_string(), 
-        // csv.middlecubes.to_string(), 
-        // csv.missedcubes.to_string(), 
-        // csv.topcones.to_string(), 
-        // csv.middlecones.to_string(), 
-        // csv.bottomcones.to_string(), 
-        // csv.missedcones.to_string(), 
-        // csv.topcube.to_string(), 
-        // csv.middlecube.to_string(), 
-        // csv.bottomcube.to_string(), 
-        // csv.missedcube.to_string(), 
-        // csv.topcone.to_string(), 
-        // csv.middlecone.to_string(), 
-        // csv.bottomcone.to_string(), 
-        // csv.missedcone.to_string(), 
-        format!("{:.1}", csv.defenseplayti),
-        csv.defensiverati.to_string(),
-        csv.teamattemptsc.to_string().to_uppercase(),
-        csv.chargestation.to_string().to_uppercase(), 
-        // csv.links.to_string(),
-        csv.anyrobotprobl.to_string(),
-        csv.fouls.to_string(),
-        csv.extranotes.to_string(),
-        csv.driveteamrati.to_string(),
-        csv.playstylesumm.to_string(),
-    ];
-    for i in data.iter() {
+    // let data = [
+    //     csv.team.to_string(),
+    //     csv.matchnum.to_string(),
+    //     csv.absent.to_string().to_uppercase(),
+    //     csv.name.to_string(),
+    //     csv.location.to_string(),
+    //     csv.teamleftcommu.to_string().to_uppercase(),
+    //     csv.teamcollected.to_string().to_uppercase(),
+    //     csv.autochargesta.to_string(),
+    //     // format!("{:?}", csv.toggletesting),
+    //     // csv.toggletesting[0].value.to_string(),
+    //     // csv.toggletesting[1].value.to_string(),
+    //     // csv.toggletesting[2].value.to_string(),
+    //     // csv.toggletesting[3].value.to_string(),
+    //     // csv.toggletesting[4].value.to_string(),
+    //     // csv.toggletesting[5].value.to_string(),
+    //     // csv.toggletesting[6].value.to_string(),
+    //     // csv.toggletesting[7].value.to_string(),
+    //     // csv.toggletesting[8].value.to_string(),
+    //     // csv.toggletesting[9].value.to_string(),
+    //     // csv.toggletesting[10].value.to_string(),
+    //     // csv.toggletesting[11].value.to_string(),
+    //     // csv.toggletesting[12].value.to_string(),
+    //     // csv.toggletesting[13].value.to_string(),
+    //     // csv.toggletesting[14].value.to_string(),
+    //     // csv.toggletesting[15].value.to_string(),
+    //     // csv.toggletesting[16].value.to_string(),
+    //     // csv.toggletesting[17].value.to_string(),
+    //     // csv.toggletesting[18].value.to_string(),
+    //     // csv.toggletesting[19].value.to_string(),
+    //     // csv.toggletesting[20].value.to_string(),
+    //     // csv.toggletesting[21].value.to_string(),
+    //     // csv.toggletesting[22].value.to_string(),
+    //     // csv.toggletesting[23].value.to_string(),
+    //     // csv.toggletesting[24].value.to_string(),
+    //     // csv.toggletesting[25].value.to_string(),
+    //     // csv.toggletesting[26].value.to_string(),
+    //     // csv.topcubes.to_string(),
+    //     // csv.bottomcubes.to_string(),
+    //     // csv.middlecubes.to_string(),
+    //     // csv.missedcubes.to_string(),
+    //     // csv.topcones.to_string(),
+    //     // csv.middlecones.to_string(),
+    //     // csv.bottomcones.to_string(),
+    //     // csv.missedcones.to_string(),
+    //     // csv.topcube.to_string(),
+    //     // csv.middlecube.to_string(),
+    //     // csv.bottomcube.to_string(),
+    //     // csv.missedcube.to_string(),
+    //     // csv.topcone.to_string(),
+    //     // csv.middlecone.to_string(),
+    //     // csv.bottomcone.to_string(),
+    //     // csv.missedcone.to_string(),
+    //     format!("{:.1}", csv.defenseplayti),
+    //     csv.defensiverati.to_string(),
+    //     csv.teamattemptsc.to_string().to_uppercase(),
+    //     csv.chargestation.to_string().to_uppercase(),
+    //     // csv.links.to_string(),
+    //     csv.anyrobotprobl.to_string(),
+    //     csv.fouls.to_string(),
+    //     csv.extranotes.to_string(),
+    //     csv.driveteamrati.to_string(),
+    //     csv.playstylesumm.to_string(),
+    // ];
+
+    let mut hash_vec: Vec<(&String, &Value)> = data.data.iter().collect();
+    let index = data.data.iter().position(|x| *x.0 == "password").unwrap(); // Gets index of the password 
+    hash_vec.remove(index); // Removes password
+
+    hash_vec.sort_by(|a, b| a.1.as_object().unwrap().get_key_value("category").unwrap().1.as_str().unwrap().cmp(b.1.as_object().unwrap().get_key_value("category").unwrap().1.as_str().unwrap()));
+    for i in hash_vec {
         // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i.replace(",", ""));
-        if String::from(i) == csv.playstylesumm.to_string() {
-            thing = format!("{}", i.replace(",", ""))
+        if i.0 == "password" {
+            continue
         }
+        thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
+        // if String::from(i) == json.data.get_key_value("playstylesumm").to_string() {
+        //     thing = format!("{}", i.replace(",", ""))
+        // }
         owned_string.push_str(&thing)
     }
     match csvstuff::append_csv(&owned_string) {
