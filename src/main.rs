@@ -139,7 +139,11 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
 
     let mut hash_vec: Vec<(&String, &Value)> = data.data.iter().collect();
 
-    hash_vec.sort_by(|a, b| a.1.as_object().unwrap().get_key_value("category").unwrap().1.as_str().unwrap().cmp(b.1.as_object().unwrap().get_key_value("category").unwrap().1.as_str().unwrap()));
+    hash_vec.sort_by(|a, b| {
+        a.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content").cmp(
+            b.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content")
+        )
+    });
     for i in hash_vec {
         // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
