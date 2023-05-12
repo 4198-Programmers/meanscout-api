@@ -155,7 +155,8 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
     match csvstuff::append_csv(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
-            error!(format!("Uh oh, {}", error))
+            error!(format!("Uh oh, {}", error));
+            return Status::InternalServerError
         }
     } // Adds the information to data.csv
     return Status::Accepted; // Returns accepted status when done
