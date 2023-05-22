@@ -129,7 +129,7 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
       .append(true)
       .open("test.json")
       .unwrap();
-    
+
     let _ = writeln!(file, "{}", format!("{}", json));
 
     let data: csvstuff::Data = serde_json::from_str(&json).unwrap();
