@@ -1,0 +1,119 @@
+<svg height="{{height}}px" width="{{width}}px" viewBox="-200 -200 400 400">
+
+    {% set something = 0 %}
+    <circle cx="0" cy="0" r="100" fill="#d1c4ff" />
+
+    <text
+    x="0"
+    y="-125"
+    fill="#cdd6f4"
+    font-size="12"
+    font-weight="200"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    >
+        {{name}}</text>
+    
+    {% for i in range(end=(length)) %}
+    {% set point = points_in_graph | nth(n=loop.index0) %}
+
+    {% if loop.last %}
+        {% set something = points_in_graph | nth(n=0)  %}
+    {% else %}
+        {% set something = points_in_graph | nth(n=loop.index0 + 1)  %}
+    {% endif %}
+
+    {% set point_x = point | nth(n=0) %}
+    {% set point_y = point | nth(n=1) %}
+
+    {% set next_point_x = something | nth(n=0) %}
+    {% set next_point_y = something | nth(n=1) %}
+    {% set text = names | nth(n=loop.index0) %}
+    <g>
+    <path d="
+        M0,0 
+        L{{point_x}},{{point_y}} 
+        A100,100 0 0,1 {{next_point_x}},{{next_point_y}} Z" 
+        fill="{{colour | nth(n=loop.index0)}}" class="slice"
+    />
+
+    {% if ((point_x + next_point_x) / 2) > 0 %}
+        <path d="
+            M{{(point_x + next_point_x) / 2 }}, {{(point_y + next_point_y) / 2}}
+            L{{(point_x + next_point_x) / 2 + 100}}, {{(point_y + next_point_y) / 2}} 
+            L{{(point_x + next_point_x) / 2 + 100}}, {{(point_y + next_point_y) / 2 - 1}} 
+            L{{(point_x + next_point_x) / 2 }}, {{(point_y + next_point_y) / 2 - 1}} 
+            Z
+        " fill="#FFFFFF"/>
+
+        <path d="
+            M{{(point_x + next_point_x) / 2 + 15}}, {{(point_y + next_point_y) / 2 - 12}}
+            L{{(point_x + next_point_x) / 2 + 95}}, {{(point_y + next_point_y) / 2 - 12}} 
+            L{{(point_x + next_point_x) / 2 + 95}}, {{(point_y + next_point_y) / 2 - 2}} 
+            L{{(point_x + next_point_x) / 2 + 15}}, {{(point_y + next_point_y) / 2 - 2}} 
+            Z
+        " fill="rgba(30,30,46,0.593)"/>
+
+        <text style="textstuff"
+            x="{{(point_x + next_point_x) /2 + 20}}"
+            y="{{(point_y + next_point_y) /2 - 4}}"
+            fill="#cdd6f4"
+            font-size="8"
+            font-weight="200"
+        > {{text}} </text>
+    {% else %}
+        <path d="
+            M{{(point_x + next_point_x) / 2 }}, {{(point_y + next_point_y) / 2}}
+            L{{(point_x + next_point_x) / 2 - 100}}, {{(point_y + next_point_y) / 2}} 
+            L{{(point_x + next_point_x) / 2 - 100}}, {{(point_y + next_point_y) / 2 - 1}} 
+            L{{(point_x + next_point_x) / 2 }}, {{(point_y + next_point_y) / 2 - 1}} 
+            Z
+        " fill="#FFFFFF"/>
+
+        <path d="
+            M{{(point_x + next_point_x) / 2 - 20}}, {{(point_y + next_point_y) / 2 - 12}}
+            L{{(point_x + next_point_x) / 2 - 95}}, {{(point_y + next_point_y) / 2 - 12}} 
+            L{{(point_x + next_point_x) / 2 - 95}}, {{(point_y + next_point_y) / 2 - 2}} 
+            L{{(point_x + next_point_x) / 2 - 20}}, {{(point_y + next_point_y) / 2 - 2}} 
+            Z
+        " fill="rgba(30,30,46,0.593)"/>
+
+        <text style="textstuff"
+            x="{{(point_x + next_point_x) /2 - 90}}"
+            y="{{(point_y + next_point_y) /2 - 4}}"
+            fill="#cdd6f4"
+            font-size="8"
+            font-weight="200"
+        > {{text}} </text>
+    {% endif %}
+    </g>
+
+    {% endfor %}
+
+    <text
+        x="-150"
+		y="-150"
+		font-family="-apple-system, system-ui, BlinkMacSystemFont, Roboto"
+		dominant-baseline="middle"
+		text-anchor="middle"
+		font-size="10"
+		fill="#74838f"
+		font-weight="700"> total: {{total}} </text>
+
+    <style> 
+        g {
+            transition: filter 0.2s, scale 0.2s;
+            /* pointer-events: bounding-box; */
+        }
+
+        g:hover {
+            filter: brightness(0.9);
+            scale: 1.1;
+        }
+        
+        svg {
+            background-color: {{background}};
+            border-radius: 25px;
+        }
+    </style>
+</svg>
