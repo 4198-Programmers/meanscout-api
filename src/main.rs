@@ -1,7 +1,12 @@
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate tera;
+#[macro_use]
+extern crate lazy_static;
 use chrono;
 
+use csv::Reader;
 use rocket::request::{FromRequest, Outcome};
 use rocket::serde::json::Json;
 use rocket::fairing::{Fairing, Info, Kind};
@@ -18,6 +23,7 @@ use std::io::prelude::*;
 mod csvstuff;
 mod settings;
 mod catchers;
+mod graphs;
 
 // Just a silly little easter egg
 #[get("/teapot")]
@@ -81,6 +87,44 @@ fn sensitive(_key: ApiKey<'_>) -> &'static str {
     "Sensitive data."
 }
 
+#[get("/linegraph")]
+fn linegraph() -> rocket::response::content::RawXml<String> {
+    let mut rdr = csv::Reader::from_path("data.csv").unwrap();
+    let mut i = 0.0;
+    let mut graph = graphs::LineGraph::new("yeah".into(), "#7289da".into());
+    for result in rdr.records() {
+        // The iterator yields Result<StringRecord, Error>, so we check the
+        // error here.
+        let record = result.unwrap();
+        println!("{}", record[20].to_string().trim());
+        graph.add_point(i, record[20].to_string().trim().parse::<i32>().unwrap().into());
+        i += 1.0;
+        // println!("{:?}", record);
+    }
+    // graph.add_point(1.0, 1.0);
+    // std::fs::write("test.svg", graph.draw_svg(1000, 800).unwrap());
+    rocket::response::content::RawXml(graph.draw_svg(1000, 800, 10).unwrap())
+}
+
+#[get("/piegraph?<height>&<width>&<background>")]
+fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>) -> rocket::response::content::RawHtml<String> {
+    let mut rdr = csv::Reader::from_path("data.csv").unwrap();
+    let mut i = 0.0;
+    let mut graph = graphs::PieGraph::new("yeah".into(), "#7289da".into());
+    
+    for result in rdr.records() {
+        // The iterator yields Result<StringRecord, Error>, so we check the
+        // error here.
+        let record = result.unwrap();
+        // println!("{}", record[20].to_string().trim());
+        graph.add_slice(record[20].to_string().trim().parse::<i32>().unwrap().into(), format!("{}", i));
+        i += 1.0;
+        // println!("{:?}", record);
+    }
+    // graph.add_point(1.0, 1.0);
+    // std::fs::write("test.svg", graph.draw_svg(height.unwrap_or(1000), width.unwrap_or(1200)).unwrap());
+    rocket::response::content::RawHtml(graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.unwrap_or("#1e1e2e".to_string())).unwrap())
+}
 pub struct CORS;
 
 // Needed implementation of CORS headers
@@ -452,7 +496,9 @@ async fn main() {
                 pits_post,
                 all_options,
                 sensitive,
-                teapot
+                teapot,
+                linegraph,
+                piegraph
             ],
         ) // Just put all of the routes in here
         .register(
