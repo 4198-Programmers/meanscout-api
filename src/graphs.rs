@@ -43,7 +43,6 @@ fn get_coords(percentages: Vec<f32>) -> Vec<Vec<f64>> {
         let point_x = center_x + radius * current_angle.cos();
         let point_y = center_y + radius * current_angle.sin();
 
-        println!("Point: ({:.2}, {:.2})", point_x, point_y);
         points.push([point_x, point_y].into());
 
         current_angle += (percentage as f64 / 100.0) * angle_increment;
