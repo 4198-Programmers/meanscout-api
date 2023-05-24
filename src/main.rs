@@ -106,25 +106,48 @@ fn linegraph() -> rocket::response::content::RawXml<String> {
     rocket::response::content::RawXml(graph.draw_svg(1000, 800, 10).unwrap())
 }
 
-#[get("/piegraph?<height>&<width>&<background>")]
-fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>) -> rocket::response::content::RawHtml<String> {
+#[get("/piegraph?<height>&<width>&<background>&<datapoint>")]
+fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>) -> rocket::response::content::RawHtml<String> {
     let mut rdr = csv::Reader::from_path("data.csv").unwrap();
-    let mut i = 0.0;
-    let mut graph = graphs::PieGraph::new("yeah".into(), "#7289da".into());
+    // let mut i = 0.0;
+    let binding = rdr.headers();
+    let headers: Vec<String> = binding.unwrap().iter().map(|point| point.to_string()).collect();
+
+    let mut team_header_position: usize = 0;
+    if headers.contains(&"team".to_string()) {
+        team_header_position = headers.iter().position(|r| r == &"team".to_string()).unwrap();
+    }
+
+    let mut header_position: usize = 0;
+    if datapoint.is_none() {
+        header_position = team_header_position.clone()
+    }
+    else{
+        if headers.contains(&datapoint.clone().unwrap()) {
+            header_position = headers.iter().position(|r| r == &datapoint.clone().unwrap()).unwrap()
+        }
+    }
+    
+
+
+    let mut graph = graphs::PieGraph::new(datapoint.unwrap_or("Team Numbers".to_string()), "#7289da".into());
+    
+    
+    println!("{:?}", &headers);
     
     for result in rdr.records() {
         // The iterator yields Result<StringRecord, Error>, so we check the
         // error here.
+
         let record = result.unwrap();
-        // println!("{}", record[20].to_string().trim());
-        graph.add_slice(record[20].to_string().trim().parse::<i32>().unwrap().into(), format!("{}", i));
-        i += 1.0;
-        // println!("{:?}", record);
+        graph.add_slice(record[header_position].to_string().replace("\"", "").trim().parse::<i32>().unwrap().into(), record[team_header_position].to_string().trim().to_string().replace("\"", ""));
+        // i += 1.0;
     }
     // graph.add_point(1.0, 1.0);
-    // std::fs::write("test.svg", graph.draw_svg(height.unwrap_or(1000), width.unwrap_or(1200)).unwrap());
+    // std::fs::write("test.svg", graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.clone().unwrap_or("#1e1e2e".to_string())).unwrap());
     rocket::response::content::RawHtml(graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.unwrap_or("#1e1e2e".to_string())).unwrap())
 }
+
 pub struct CORS;
 
 // Needed implementation of CORS headers
