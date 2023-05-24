@@ -211,12 +211,18 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
             b.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content")
         )
     });
+
+    if csvstuff::file_empty("data.csv".into()).unwrap() {
+        let mut header: String = "".to_owned();
+        println!("yeah");
+        let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
+        for val in mapped {header.push_str(format!("{},", val).as_str())}
+        let _ = csvstuff::append_csv(&header);
+    }
+
     for i in hash_vec {
         // Iterates through the list and appends the data to a string
         thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
-        // if String::from(i) == json.data.get_key_value("playstylesumm").to_string() {
-        //     thing = format!("{}", i.replace(",", ""))
-        // }
         owned_string.push_str(&thing)
     }
     match csvstuff::append_csv(&owned_string) {
