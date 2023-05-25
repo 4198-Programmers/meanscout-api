@@ -106,8 +106,8 @@ fn linegraph() -> rocket::response::content::RawXml<String> {
     rocket::response::content::RawXml(graph.draw_svg(1000, 800, 10).unwrap())
 }
 
-#[get("/piegraph?<height>&<width>&<background>&<datapoint>")]
-fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>) -> rocket::response::content::RawHtml<String> {
+#[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>")]
+fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>) -> rocket::response::content::RawHtml<String> { // Style will let you switch between types of pie graphs
     let mut rdr = csv::Reader::from_path("data.csv").unwrap();
     // let mut i = 0.0;
     let binding = rdr.headers();
