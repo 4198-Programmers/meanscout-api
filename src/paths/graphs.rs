@@ -70,7 +70,7 @@ pub fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<Stri
 }
 
 #[get("/linegraph?<height>&<width>&<datapoint>&<team>")]
-pub fn linegraph(height: Option<i64>, width: Option<i64>, datapoint: Option<String>, team: Option<String>) -> rocket::response::content::RawXml<String> {
+pub fn linegraph(height: Option<usize>, width: Option<usize>, datapoint: Option<String>, team: Option<String>) -> rocket::response::content::RawXml<String> {
     let mut rdr = csv::Reader::from_path("data.csv").unwrap();
     let mut i = 0.0;
     let binding = rdr.headers();
@@ -86,12 +86,10 @@ pub fn linegraph(height: Option<i64>, width: Option<i64>, datapoint: Option<Stri
         // The iterator yields Result<StringRecord, Error>, so we check the
         // error here.
         let record = result.unwrap();
-        println!("{}", record[20].to_string().trim());
         graph.add_point(i, record[20].to_string().trim().parse::<i32>().unwrap().into());
         i += 1.0;
-        // println!("{:?}", record);
     }
     // graph.add_point(1.0, 1.0);
     // std::fs::write("test.svg", graph.draw_svg(1000, 800).unwrap());
-    rocket::response::content::RawXml(graph.draw_svg(1000, 800, 10).unwrap())
+    rocket::response::content::RawXml(graph.draw_svg(width.unwrap_or(1000), height.unwrap_or(800), 10).unwrap())
 }
