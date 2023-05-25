@@ -6,6 +6,7 @@ use std::borrow::Cow;
 use std::fs;
 use crate::settings;
 use std::error::Error;
+use std::io::prelude::*;
 // use config::{ConfigError, Config};
 
 
@@ -178,6 +179,19 @@ pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
     
     let _ = writeln!(file, "{}", format!("{}", content));
     Ok(())
+}
+
+/// Checks if file is empty
+pub fn file_empty(file: String) -> Result<bool, Box<dyn Error>> {
+    let mut thing = fs::File::open(file).expect("Failed to open file");
+    let mut string = String::new();
+    thing.read_to_string(&mut string).unwrap();
+    if string == "".to_string() {
+        return Ok(true)
+    }
+    else {
+        return Ok(false)
+    }
 }
 
 /// Wipes data.csv
