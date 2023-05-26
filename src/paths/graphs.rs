@@ -1,15 +1,14 @@
-
 use crate::graphs;
 
-
-#[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>&<teams>")]
-pub fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> rocket::response::content::RawHtml<String> { // Style will let you switch between types of pie graphs
+#[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>&<teams>&<title>")]
+pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> rocket::response::content::RawHtml<String> { // Style will let you switch between types of pie graphs
     let mut rdr = csv::Reader::from_path("data.csv").unwrap();
-    // let mut i = 0.0;
+
+    // Compiler wants me to have this, and if the compiler is happy, I am happy
     let binding = rdr.headers();
     let headers: Vec<String> = binding.unwrap().iter().map(|point| point.to_string()).collect();
     let mut teams_vec: Vec<String> = Vec::new();
-
+    
     if teams.is_some() {
         teams_vec = teams.clone().unwrap().split(",").map(|s| s.parse().unwrap()).collect()
     }
@@ -23,15 +22,14 @@ pub fn piegraph(height: Option<i64>, width: Option<i64>, background: Option<Stri
     if datapoint.is_none() {
         header_position = team_header_position.clone()
     }
-    else{
+
+    else {
         if headers.contains(&datapoint.clone().unwrap()) {
             header_position = headers.iter().position(|r| r == &datapoint.clone().unwrap()).unwrap()
         }
     }
-    
-    //                  ADD THE THING TO NARROW DOWN BETWEEN SPECIFIC TEAMS
 
-    let mut graph = graphs::PieGraph::new(datapoint.unwrap_or("Team Numbers".to_string()), "#7289da".into());
+    let mut graph = graphs::PieGraph::new(title.unwrap_or(datapoint.unwrap_or("Team Numbers".to_string())), "#7289da".into());
     
     // If the user chooses specific teams
     if teams.is_some() {
