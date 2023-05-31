@@ -174,65 +174,50 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
     return Status::Accepted; // Returns accepted status when done
 }
 
-
-
 // Accepting POST requests from Meanscout
-#[post("/pits", data = "<csv>")]
-async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
-    // Array for storing the passwords
-    let passwords = ["ChangeMe!".to_string()];
+#[post("/pits", data = "<json>", format = "json")]
+async fn pits_post(_key: PassKey<'_>, json: String) -> Status {
+    let mut file = std::fs::OpenOptions::new()
+      .append(true)
+      .open("test.json")
+      .unwrap();
 
-    if passwords.contains(&csv.password.to_string()) == false {
-        return Status::Unauthorized;
-    } // If the json interpreted doesn't have the right password, it's bad
+    let _ = writeln!(file, "{}", format!("{}", json));
+
+    let data: csvstuff::Data = serde_json::from_str(&json).unwrap();
+
     let mut owned_string: String = "".to_owned(); // String for later to append to
     let mut thing: String; // Placeholder string
 
-    // Puts all of the data into a vector/array
-    let data = [
-    csv.abilitytomoveco.to_string().replace(",", ""),
-    csv.abilitytomovecu.to_string().replace(",", ""),
-    csv.averageconecycl.to_string().replace(",", ""),
-    csv.averagecubecycl.to_string().replace(",", ""),
-    csv.successfullgrab.to_string().replace(",", ""),
-    csv.robotweightlbs.to_string().replace(",", ""),
-    csv.maxheightcapabi.to_string().replace(",", ""),
-    csv.totalwheelsused.to_string().replace(",", ""),
+    let mut hash_vec: Vec<(&String, &Value)> = data.data.iter().collect();
 
-    
-    // csv.endgametraction.to_string(),
-    csv.wherearepneumat.to_string().replace(",", ""),
-    csv.whereare3dprint.to_string().replace(",", ""),
+    hash_vec.sort_by(|a, b| {
+        a.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content").cmp(
+            b.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content")
+        )
+    });
 
-    csv.programmedautoc.to_string().replace(",", ""),
-    // csv.limelightcapabi.to_string(),
-    csv.apriltagsused.to_string().replace(",", ""),
-    csv.reflectivetapeu.to_string().replace(",", ""),
-    csv.extracamerasuse.to_string().replace(",", ""),
-    csv.automationviase.to_string().replace(",", ""),
+    if csvstuff::file_empty("pits.csv".into()).unwrap() {
+        let mut header: String = "".to_owned();
+        let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
+        for val in mapped {header.push_str(format!("{},", val).as_str())}
+        let _ = csvstuff::append_csv(&header);
+    }
 
-    csv.endgameabilitys.to_string().replace(",", ""),
-    csv.whatisyourfavor.to_string().replace(",", ""),
-    csv.drivestationsum.to_string().replace(",", ""),
-    csv.arethereanyothe.to_string().replace(",", ""),
-    ];
-    for i in data.iter() {
+    for i in hash_vec {
         // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i);
-        if String::from(i) == csv.arethereanyothe.to_string() {
-            thing = format!("{}", i)
-        }
+        thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
         owned_string.push_str(&thing)
     }
     match csvstuff::append_pits(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
-            error!(format!("Uh oh, {}", error))
+            error!(format!("Uh oh, {}", error));
+            return Status::InternalServerError
         }
     } // Adds the information to data.csv
     return Status::Accepted; // Returns accepted status when done
 }
-
 
 // When you send a GET request or open it in a web browser it will send the file for data.csv
 #[get("/scouting")]
