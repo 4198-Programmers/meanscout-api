@@ -1,7 +1,12 @@
 use crate::graphs;
+use rocket::futures::Stream;
+use rocket::response::content;
+use rocket::http::ContentType;
+use rocket::response::stream;
+use std::io::Cursor;
 
 #[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>&<teams>&<title>")]
-pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> rocket::response::content::RawHtml<String> { // Style will let you switch between types of pie graphs
+pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> (ContentType, String) { // Style will let you switch between types of pie graphs
     let mut rdr = csv::Reader::from_path("data.csv").unwrap();
 
     // Compiler wants me to have this, and if the compiler is happy, I am happy
@@ -43,7 +48,6 @@ pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, 
             }
         ).collect();
 
-        
         for result in records {
     
             let record = result.unwrap();
@@ -63,8 +67,9 @@ pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, 
         }
     }
     
+    
     // std::fs::write("test.svg", graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.clone().unwrap_or("#1e1e2e".to_string())).unwrap());
-    rocket::response::content::RawHtml(graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.unwrap_or("#1e1e2e".to_string())).unwrap())
+    (ContentType::HTML, graph.draw_svg(height.unwrap_or(800), width.unwrap_or(1000), background.unwrap_or("#1e1e2e".to_string())).unwrap())
 }
 
 #[get("/linegraph?<height>&<width>&<datapoint>&<team>")]
