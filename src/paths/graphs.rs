@@ -1,9 +1,5 @@
 use crate::graphs;
-use rocket::futures::Stream;
-use rocket::response::content;
 use rocket::http::ContentType;
-use rocket::response::stream;
-use std::io::Cursor;
 
 #[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>&<teams>&<title>")]
 pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> (ContentType, String) { // Style will let you switch between types of pie graphs
