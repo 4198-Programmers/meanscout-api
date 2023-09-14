@@ -1,5 +1,6 @@
 debug = false
 logs_dir = "logs/scouting.log"
-pits_data = "pits.csv"
-stands_data = "data.csv"
-test_data = "test.csv"
+pits_data = "data/pits.csv"
+stands_data = "data/data.csv"
+test_data = "data/test.csv"
+passwords = ["ChangeMe!"]

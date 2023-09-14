@@ -151,7 +151,7 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
         )
     });
 
-    if csvstuff::file_empty("data.csv".into()).unwrap() {
+    if csvstuff::file_empty("data/data.csv".into()).unwrap() {
         let mut header: String = "".to_owned();
         println!("yeah");
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
@@ -197,7 +197,7 @@ async fn pits_post(_key: PassKey<'_>, json: String) -> Status {
         )
     });
 
-    if csvstuff::file_empty("pits.csv".into()).unwrap() {
+    if csvstuff::file_empty("data/pits.csv".into()).unwrap() {
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
