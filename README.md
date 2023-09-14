@@ -37,10 +37,10 @@ let config = rocket::Config::figment()
 ```
 
 ### Passwords
-Changing the passwords requires changing the password variable on [Line 47](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/src/main.rs#L44) in [src/main.rs](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/src/main.rs). You add or remove strings to the list to add or remove possible passwords. The strings must have the function `to_string()` attributed to it.
+Changing the passwords requires changing the password variable on [Line 6](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/src/main.rs#L44) in [settings.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/settings.toml). You add or remove strings to the list to add or remove possible passwords.
 ```rust
-// Line 47
-let passwords = ["GenericPassword".to_string(), "OtherPassword".to_string()];
+// Line 6
+passwords = ["ChangeMe!", "AnotherPassword!"]
 ```
 
 ## Logging
