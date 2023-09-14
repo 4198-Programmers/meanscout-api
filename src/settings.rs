@@ -108,6 +108,7 @@ pub struct Settings {
     pub pits_data: String,
     pub stands_data: String,
     pub test_data: String,
+    pub passwords: Vec<String>,
 }
 
 impl Settings {

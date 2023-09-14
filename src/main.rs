@@ -67,8 +67,8 @@ impl<'r> FromRequest<'r> for PassKey<'r> {
     type Error = ApiKeyError;
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        
-        let passwords = ["ChangeMe!".to_string()];
+        let settings = settings::Settings::new().unwrap();
+        let passwords = settings.passwords;
         /// Returns true if `key` is a valid API key string.
         fn is_valid(key: &str, passwords: Vec<String>) -> bool {
             passwords.contains(&format!("{}", key))
