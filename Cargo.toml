@@ -20,3 +20,6 @@ config = { version = "0.13.3" }
 tera = "1.18.1"
 lazy_static = "1.4.0"
 csv = { version = "1.2.1" }
+
+[patch.crates-io]
+traitobject = { git = "https://github.com/reem/rust-traitobject", rev = "b3471a15917b2caf5a8b27debb0b4b390fc6634f" }
