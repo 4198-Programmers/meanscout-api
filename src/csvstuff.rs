@@ -139,7 +139,7 @@ pub fn init_files() -> Result<(), Box<dyn Error>> {
 
 /// Checks if file exists
 pub fn file_exists(file: &str) -> bool {
-    return Path::new(file).exists()
+    Path::new(file).exists()
 }
 
 /// Adds to data.csv
@@ -156,6 +156,7 @@ pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
 }
 
 /// Instead adds to the garbage data csv
+#[allow(unused)]
 pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
     let settings_stuff = settings::Settings::new()?;
     init_files()?;
