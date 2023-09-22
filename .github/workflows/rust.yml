@@ -20,6 +20,6 @@ jobs:
       uses: rust-build/rust-build.action@v1.4.3
       env:
           TOOLCHAIN_VERSION: nightly-x86_64-unknown-linux-gnu
-      run: cargo build --verbose
+      # run: cargo build --verbose
     # - name: Run tests
     #   run: cargo test --verbose
