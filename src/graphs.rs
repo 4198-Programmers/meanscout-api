@@ -26,6 +26,7 @@ pub fn do_nothing_filter(value: &Value, _: &HashMap<String, Value>) -> Result<Va
     Ok(to_value(s).unwrap())
 }
 
+// Coordinates for the points on the circle
 fn get_coords(percentages: Vec<f32>) -> Vec<Vec<f64>> {
     let center_x = 0.0;  // X-coordinate of the circle's center
     let center_y = 0.0;  // Y-coordinate of the circle's center
@@ -50,6 +51,14 @@ fn get_coords(percentages: Vec<f32>) -> Vec<Vec<f64>> {
     points
 }
 
+/// Data structure defining a point on a graph
+#[derive(Clone, Debug, Copy)]
+pub struct Point {
+    pub x: f64,
+    pub y: f64,
+}
+
+/// Data structure defining a line graph
 #[derive(Clone, Debug)]
 pub struct LineGraph {
     pub name: String,
@@ -57,6 +66,7 @@ pub struct LineGraph {
     pub colour: String
 }
 
+/// Object for line graphs
 impl LineGraph {
     pub fn new(name: String, colour: String) -> Self {
         LineGraph {
@@ -66,10 +76,12 @@ impl LineGraph {
         }
     }
 
+    /// Adds a datapoint to the graph with the given x and y coordinates
     pub fn add_point(&mut self, x: f64, y: f64) {
         self.points.push(Point { x, y });
     }
 
+    /// Draws the graph as an SVG
     pub fn draw_svg(&self, width: usize, height: usize, lines: usize) -> std::result::Result<String, Box<dyn Error>> {
 
         let mut context = Context::new();
@@ -113,6 +125,7 @@ impl LineGraph {
             })
             .collect::<Vec<String>>().join(" ");
 
+        // Inserts everything the template needs to render the graph
         context.insert("name", &self.name);
         context.insert("width", &width);
         context.insert("height", &height);
@@ -132,18 +145,14 @@ impl LineGraph {
     }
 }
 
-#[derive(Clone, Debug, Copy)]
-pub struct Point {
-    pub x: f64,
-    pub y: f64,
-}
-
+/// A struct defining a slice of a pie graph
 #[derive(Clone, Debug)]
 pub struct Slice {
     pub amount: f64,
     pub name: String,
 }
 
+/// A struct defining a pie graph
 #[derive(Clone, Debug)]
 pub struct PieGraph {
     pub name: String,
@@ -151,6 +160,7 @@ pub struct PieGraph {
     pub colour: String
 }
 
+/// Object for pie graphs
 impl PieGraph {
     pub fn new(name: String, colour: String) -> Self {
         PieGraph {
@@ -160,10 +170,12 @@ impl PieGraph {
         }
     }
 
+    /// Adds a slice to the graph with the given amount and name
     pub fn add_slice(&mut self, amount: f64, name: String) {
         self.points.push(Slice { amount, name });
     }
 
+    /// Draws the graph as an SVG
     pub fn draw_svg(&self, height: i64, width: i64, background: String) -> std::result::Result<String, Box<dyn Error>> {
 
         let mut context = Context::new();
