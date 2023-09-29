@@ -1,9 +1,11 @@
 use crate::graphs;
 use rocket::http::ContentType;
+use crate::settings;
 
 #[get("/piegraph?<height>&<width>&<background>&<datapoint>&<style>&<teams>&<title>")]
 pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, background: Option<String>, datapoint: Option<String>, style: Option<String>, teams: Option<String>) -> (ContentType, String) { // Style will let you switch between types of pie graphs
-    let mut rdr = csv::Reader::from_path("data.csv").unwrap();
+    let settings = settings::Settings::new().unwrap();
+    let mut rdr = csv::Reader::from_path(settings.stands_data).expect("Could not open data.csv");
 
     // Compiler wants me to have this, and if the compiler is happy, I am happy
     let binding = rdr.headers();
@@ -70,7 +72,8 @@ pub fn piegraph(title: Option<String>, height: Option<i64>, width: Option<i64>, 
 
 #[get("/linegraph?<height>&<width>&<datapoint>&<team>")]
 pub fn linegraph(height: Option<usize>, width: Option<usize>, datapoint: Option<String>, team: Option<String>) -> rocket::response::content::RawXml<String> {
-    let mut rdr = csv::Reader::from_path("data.csv").unwrap();
+    let settings = settings::Settings::new().unwrap();
+    let mut rdr = csv::Reader::from_path(settings.stands_data).expect("Could not open data.csv");
     let mut i = 0.0;
     let binding = rdr.headers();
     let headers: Vec<String> = binding.unwrap().iter().map(|point| point.to_string()).collect();
@@ -89,6 +92,6 @@ pub fn linegraph(height: Option<usize>, width: Option<usize>, datapoint: Option<
         i += 1.0;
     }
     // graph.add_point(1.0, 1.0);
-    // std::fs::write("test.svg", graph.draw_svg(1000, 800).unwrap());
+    // std::fs::write("test.svg", graph.draw_svg(1000, 800, 10).unwrap());
     rocket::response::content::RawXml(graph.draw_svg(width.unwrap_or(1000), height.unwrap_or(800), 10).unwrap())
 }
