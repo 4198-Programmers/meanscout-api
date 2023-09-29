@@ -11,7 +11,7 @@ repository = "https://github.com/4198-Programmers/meanscout-api-rust"
 
 [dependencies]
 rocket = {version = "0.5.0-rc", features = ["tls", "json"]}
-rocket_contrib = { version = "0.4.11", features = ["tera_templates"]}
+# rocket_contrib = { version = "0.4.11", features = ["tera_templates"]}
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = true, features = ["alloc"] }
