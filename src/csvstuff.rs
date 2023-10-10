@@ -10,7 +10,7 @@ use std::io::prelude::*;
 // use config::{ConfigError, Config};
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
     pub data: serde_json::Map<String, serde_json::Value>,
 }
@@ -19,7 +19,6 @@ pub struct Data {
 
 /// Struct for the form data
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "rocket::serde")]
 pub struct FormData<'r> {
     pub team: Cow<'r, str>,
     pub matchnum: Cow<'r, str>,
@@ -60,7 +59,6 @@ pub struct FormData<'r> {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "rocket::serde")]
 pub struct PitData<'r> {
     pub team: Cow<'r, str>,
     pub absent: Cow<'r, bool>,
@@ -101,7 +99,6 @@ pub struct PitData<'r> {
 
 /// the thingies in the thingy
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(crate = "rocket::serde")]
 pub struct GridData<'r> {
     pub name: Cow<'r, str>,
     pub value: Cow<'r, i32>,
@@ -111,7 +108,6 @@ pub struct GridData<'r> {
 
 /// Just a test struct
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "rocket::serde")]
 pub struct FormDataTest<'r> {
     test: Cow<'r, str>
 }
