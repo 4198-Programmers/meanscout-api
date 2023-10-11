@@ -29,7 +29,7 @@ async fn main() {
             // or see this issue https://github.com/tokio-rs/axum/issues/849
             CorsLayer::new()
                 .allow_origin("*".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::GET])
+                .allow_methods([Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE]),
         );
         serve(app, 8000).await;
