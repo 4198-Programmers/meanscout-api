@@ -35,7 +35,13 @@ async fn main() {
         serve(app, 8000).await;
     };
 
-    println!("running");
+    match csvstuff::init_files() {
+        Ok(_e) => {}
+        Err(error) => {
+            error!(format!("Uh oh, {}", error));
+            println!("uh oh!")
+        }
+    }
     tokio::join!(frontend, backend);
 }
 
