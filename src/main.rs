@@ -54,7 +54,7 @@ async fn serve(app: Router, port: u16) {
 }
 
 async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
-    println!("- Scouting data was posted to the server");
+    debug_log!("- Scouting data was posted to the server");
     let settings = settings::Settings::new().unwrap();
     
     let mut owned_string: String = "".to_owned(); // String for later to append to
@@ -62,12 +62,14 @@ async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> Result<Stri
 
     let mut hash_vec: Vec<(&String, &Value)> = data.data.iter().collect();
 
+    // Sorts the vector by category
     hash_vec.sort_by(|a, b| {
         a.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content").cmp(
             b.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content")
         )
     });
 
+    // Makes the headers if the file is empty
     if csvstuff::file_empty(settings.stands_data).unwrap() {
         success!("File was empty, made headers");
         let mut header: String = "".to_owned();
@@ -153,5 +155,15 @@ macro_rules! error {
             chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
             format!("{}", $x)
         );
+    }};
+}
+
+// Logs to the console if in debug mode
+#[macro_export]
+macro_rules! debug_log {
+    ( $x:expr ) => {{
+        if cfg!(debug_assertions) {
+            println!("{}", $x);
+        }
     }};
 }
