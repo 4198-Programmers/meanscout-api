@@ -11,7 +11,6 @@ mod csvstuff;
 mod settings;
 use serde_json::Value;
 use std::io::Write;
-use std::fs::File;
 
 #[tokio::main]
 async fn main() {
@@ -43,6 +42,8 @@ async fn main() {
 async fn serve(app: Router, port: u16) {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    println!("Running on port: {}", &port);
+    success!(format!("Successfully started on port: {}", &port));
     axum::serve(listener, app).await.unwrap();
 }
 
