@@ -49,6 +49,8 @@ async fn serve(app: Router, port: u16) {
 
 async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> StatusCode {
     println!("- Scouting data was posted to the server");
+    let settings = settings::Settings::new().unwrap();
+    
     let mut owned_string: String = "".to_owned(); // String for later to append to
     let mut thing: String; // Placeholder string
 
@@ -60,7 +62,7 @@ async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> StatusCode 
         )
     });
 
-    if csvstuff::file_empty("data/data.csv".into()).unwrap() {
+    if csvstuff::file_empty(settings.stands_data).unwrap() {
         let mut header: String = "".to_owned();
         println!("yeah");
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
