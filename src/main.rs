@@ -53,7 +53,7 @@ async fn serve(app: Router, port: u16) {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> StatusCode {
+async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
     println!("- Scouting data was posted to the server");
     let settings = settings::Settings::new().unwrap();
     
@@ -69,8 +69,8 @@ async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> StatusCode 
     });
 
     if csvstuff::file_empty(settings.stands_data).unwrap() {
+        success!("File was empty, made headers");
         let mut header: String = "".to_owned();
-        println!("yeah");
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
         let _ = csvstuff::append_csv(&header);
@@ -85,10 +85,10 @@ async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> StatusCode 
         Ok(_e) => {}
         Err(error) => {
             error!(format!("Uh oh, {}", error));
-            return StatusCode::INTERNAL_SERVER_ERROR;
+            return Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     } // Adds the information to data.csv
-    return StatusCode::ACCEPTED; // Returns accepted status when done
+    return Ok("It worked!".into()); // Returns accepted status when done
 }
 
 async fn html() -> impl IntoResponse {
