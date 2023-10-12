@@ -20,18 +20,19 @@ async fn main() {
     };
 
     let backend = async {
-        let app = Router::new().route("/scouting", post(scouting_post)).layer(
-            // see https://docs.rs/tower-http/latest/tower_http/cors/index.html
-            // for more details
-            //
-            // pay attention that for some request types like posting content-type: application/json
-            // it is required to add ".allow_headers([http::header::CONTENT_TYPE])"
-            // or see this issue https://github.com/tokio-rs/axum/issues/849
-            CorsLayer::new()
-                .allow_origin("*".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::POST])
-                .allow_headers([http::header::CONTENT_TYPE]),
-        );
+        let app = Router::new()
+            .route("/scouting", post(scouting_post)).layer(
+                // see https://docs.rs/tower-http/latest/tower_http/cors/index.html
+                // for more details
+                //
+                // pay attention that for some request types like posting content-type: application/json
+                // it is required to add ".allow_headers([http::header::CONTENT_TYPE])"
+                // or see this issue https://github.com/tokio-rs/axum/issues/849
+                CorsLayer::new()
+                    .allow_origin("*".parse::<HeaderValue>().unwrap())
+                    .allow_methods([Method::POST])
+                    .allow_headers([http::header::CONTENT_TYPE]),
+            );
         serve(app, 8000).await;
     };
 
@@ -42,6 +43,7 @@ async fn main() {
             println!("uh oh!")
         }
     }
+
     tokio::join!(frontend, backend);
 }
 
@@ -83,13 +85,15 @@ async fn scouting_post(extract::Json(data): Json<csvstuff::Data>) -> Result<Stri
         thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
         owned_string.push_str(&thing)
     }
+
+    // Adds the information to data.csv
     match csvstuff::append_csv(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
             error!(format!("Uh oh, {}", error));
             return Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
-    } // Adds the information to data.csv
+    } 
     return Ok("It worked!".into()); // Returns accepted status when done
 }
 
@@ -110,6 +114,7 @@ async fn json() -> impl IntoResponse {
     Json(vec!["one", "two", "three"])
 }
 
+/// Logs a success into the configured log file
 #[macro_export]
 macro_rules! success {
     ( $x:expr ) => {{
@@ -126,6 +131,7 @@ macro_rules! success {
     }};
 }
 
+/// Logs a warning into the configured log file
 #[macro_export]
 macro_rules! warning {
     ( $x:expr ) => {{
@@ -142,6 +148,7 @@ macro_rules! warning {
     }};
 }
 
+/// Logs an error into the configured log file
 #[macro_export]
 macro_rules! error {
     ( $x:expr ) => {{
@@ -158,7 +165,7 @@ macro_rules! error {
     }};
 }
 
-// Logs to the console if in debug mode
+/// Logs to the console if in debug mode
 #[macro_export]
 macro_rules! debug_log {
     ( $x:expr ) => {{
