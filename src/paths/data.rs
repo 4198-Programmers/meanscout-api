@@ -25,9 +25,9 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     debug_log!("- Scouting data was posted to the server");
     let settings = crate::settings::Settings::new().unwrap();
 
-    println!("{:?}", headers["x-pass-key"]);
     let password = headers["x-pass-key"].to_str().unwrap().to_string();
-    debug_log!("- Password accepted")
+    debug_log!("- Password accepted");
+
     if authentication(password).is_err() {return Err(StatusCode::UNAUTHORIZED)}
     
     let mut owned_string: String = "".to_owned(); // String for later to append to
