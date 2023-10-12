@@ -1,4 +1,4 @@
-use crate::graphs;
+use crate::paths::graphs;
 use rocket::http::ContentType;
 use crate::settings;
 
