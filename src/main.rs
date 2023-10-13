@@ -1,5 +1,5 @@
 use axum::{
-    http::{self, HeaderValue, header::HeaderMap, Method, StatusCode},
+    http::{self, HeaderValue, Method, StatusCode},
     response::{Html, IntoResponse},
     routing::{get, post},
     Json, Router,
@@ -10,7 +10,6 @@ use tower_http::cors::CorsLayer;
 mod csvstuff;
 mod settings;
 mod paths;
-use serde_json::Value;
 use std::io::Write;
 
 #[tokio::main]
@@ -67,10 +66,6 @@ async fn html() -> impl IntoResponse {
         </script>
         "#,
     )
-}
-
-async fn json() -> impl IntoResponse {
-    Json(vec!["one", "two", "three"])
 }
 
 /// Logs a success into the configured log file
