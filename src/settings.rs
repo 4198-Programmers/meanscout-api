@@ -105,9 +105,9 @@ pub fn convert_to_mean() -> std::io::Result<()> {
 pub struct Settings {
     pub debug: bool,
     pub logs_dir: String,
-    pub pits_data: String,
-    pub stands_data: String,
-    pub test_data: String,
+    pub pits_data_dir: String,
+    pub stands_data_dir: String,
+    pub test_data_dir: String,
     pub passwords: Vec<String>,
 }
 

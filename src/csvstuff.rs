@@ -15,8 +15,6 @@ pub struct Data {
     pub data: serde_json::Map<String, serde_json::Value>,
 }
 
-
-
 /// Struct for the form data
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FormData<'r> {
@@ -115,20 +113,21 @@ pub struct FormDataTest<'r> {
 /// Initializing the data file
 pub fn init_files() -> Result<(), Box<dyn Error>> {
     let settings_stuff = settings::Settings::new()?;
-    if !file_exists(&settings_stuff.stands_data) {
-        let _userfile = File::create(&settings_stuff.stands_data);
+    if !file_exists(&settings_stuff.stands_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.stands_data_dir).parent().unwrap()).unwrap();
+        File::create(&settings_stuff.stands_data_dir)?;
     }
-    if !file_exists(&settings_stuff.pits_data) {
-        let _userfile = File::create(&settings_stuff.pits_data);
-    }
-    if !file_exists(&settings_stuff.logs_dir) {
-        let _userfile = File::create(&settings_stuff.logs_dir);
-    }
-    if !file_exists(&settings_stuff.test_data) {
-        let _userfile = File::create(&settings_stuff.test_data);
+    if !file_exists(&settings_stuff.pits_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.pits_data_dir).parent().unwrap()).unwrap();
+        File::create(&settings_stuff.pits_data_dir)?;
     }
     if !file_exists(&settings_stuff.logs_dir) {
-        let _userfile = File::create(&settings_stuff.logs_dir);
+        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.logs_dir).parent().unwrap()).unwrap();
+        File::create(&settings_stuff.logs_dir)?;
+    }
+    if !file_exists(&settings_stuff.test_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.test_data_dir).parent().unwrap()).unwrap();
+        File::create(&settings_stuff.test_data_dir)?;
     }
     Ok(())
 }
@@ -144,7 +143,7 @@ pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
     let settings_stuff = settings::Settings::new()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.stands_data)
+      .open(&settings_stuff.stands_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -158,7 +157,7 @@ pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.test_data)
+      .open(&settings_stuff.test_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -171,7 +170,7 @@ pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.pits_data)
+      .open(&settings_stuff.pits_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));

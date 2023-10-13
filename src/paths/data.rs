@@ -41,7 +41,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     });
 
     // Makes the headers if the file is empty
-    if csvstuff::file_empty(settings.stands_data).unwrap() {
+    if csvstuff::file_empty(settings.stands_data_dir).unwrap() {
         success!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
