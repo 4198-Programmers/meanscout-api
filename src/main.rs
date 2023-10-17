@@ -1,9 +1,8 @@
 use axum::{
-    http::{self, HeaderValue, Method, StatusCode},
+    http::{self, HeaderValue, Method},
     response::{Html, IntoResponse},
     routing::{get, post},
     Json, Router,
-    extract,
 };
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};

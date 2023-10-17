@@ -85,7 +85,7 @@ pub fn convert_to_mean() -> std::io::Result<()> {
                     writeln!(file, "{}", metric)?;
                 }
                 else {
-                    for category_items in item.1.as_object() {
+                    while let Some(category_items) = item.1.as_object() {
                         // println!("{:?}", category_items);
                         for asdf in category_items.iter() {
                             let metric = format!("  {{\"name\": \"{}\", \"type\": {}{}}},", asdf.0, asdf.1, if(Some(asdf) == category_items.iter().next()) {format!(", \"group\": \"{}\"", item.0)} else {"".into()});
