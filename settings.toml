@@ -1,7 +1,11 @@
-debug = false
+debug = false # Do I get rid of this? Not sure if I need it, already have debug compilation
+
+# Just the directories
 logs_dir = "logs/scouting.log"
 pits_data_dir = "data/pits.csv"
 stands_data_dir = "data/data.csv"
 test_data_dir = "data/test.csv"
+
 passwords = ["ChangeMe!", "AnotherPassword?"]
+
 ip_address = [0,0,0,0]
