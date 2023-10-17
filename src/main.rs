@@ -14,7 +14,7 @@ use std::io::Write;
 #[tokio::main]
 async fn main() {
     let frontend = async {
-        let app = Router::new().route("/", get(html));
+        let app = Router::new().route("/", get(index));
         serve(app, 4000).await;
     };
 
@@ -54,15 +54,10 @@ async fn serve(app: Router, port: u16) {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn html() -> impl IntoResponse {
+async fn index() -> impl IntoResponse {
     Html(
         r#"
-        hi
-        <script>
-            fetch('http://127.0.0.1:8000/scouting')
-              .then(response => response.json())
-              .then(data => console.log(data));
-        </script>
+        Hello World!
         "#,
     )
 }
