@@ -109,6 +109,7 @@ pub struct Settings {
     pub stands_data_dir: String,
     pub test_data_dir: String,
     pub passwords: Vec<String>,
+    pub ip_address: [u8; 4],
 }
 
 impl Settings {

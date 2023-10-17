@@ -47,7 +47,8 @@ async fn main() {
 }
 
 async fn serve(app: Router, port: u16) {
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let config = settings::Settings::new().unwrap();
+    let addr = SocketAddr::from((config.ip_address, port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     println!("Running on port: {}", &port);
     success!(format!("Successfully started on port: {}", &port));

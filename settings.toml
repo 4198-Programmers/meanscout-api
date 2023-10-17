@@ -4,3 +4,4 @@ pits_data_dir = "data/pits.csv"
 stands_data_dir = "data/data.csv"
 test_data_dir = "data/test.csv"
 passwords = ["ChangeMe!", "AnotherPassword?"]
+ip_address = [0,0,0,0]
