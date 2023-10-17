@@ -1,8 +1,9 @@
+#![allow(unused_imports)]
 use axum::{
     http::{self, HeaderValue, Method},
     response::{Html, IntoResponse},
     routing::{get, post},
-    Json, Router,
+    Router,
 };
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
