@@ -165,6 +165,7 @@ pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
 }
 
 /// Adds to data.csv
+#[allow(unused)]
 pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
     let settings_stuff = settings::Settings::new()?;
     init_files()?;
@@ -191,6 +192,7 @@ pub fn file_empty(file: String) -> Result<bool, Box<dyn Error>> {
 }
 
 /// Wipes data.csv
+#[allow(unused)]
 pub fn wipe_data() {
     let _ = fs::write("data.csv", "");
     return
