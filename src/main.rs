@@ -39,7 +39,7 @@ async fn main() {
     match csvstuff::init_files() {
         Ok(_e) => {}
         Err(error) => {
-            error!(format!("Uh oh, {}", error));
+            log_error!(format!("Uh oh, {}", error));
             println!("uh oh!")
         }
     }
@@ -52,7 +52,7 @@ async fn serve(app: Router, port: u16) {
     let addr = SocketAddr::from((config.ip_address, port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     println!("Running on port: {}", &port);
-    success!(format!("Successfully started on port: {}", &port));
+    log_success!(format!("Successfully started on port: {}", &port));
     axum::serve(listener, app).await.unwrap();
 }
 
@@ -66,7 +66,7 @@ async fn index() -> impl IntoResponse {
 
 /// Logs a success into the configured log file
 #[macro_export]
-macro_rules! success {
+macro_rules! log_success {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
@@ -83,7 +83,7 @@ macro_rules! success {
 
 /// Logs a warning into the configured log file
 #[macro_export]
-macro_rules! warning {
+macro_rules! log_warning {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
@@ -100,7 +100,7 @@ macro_rules! warning {
 
 /// Logs an error into the configured log file
 #[macro_export]
-macro_rules! error {
+macro_rules! log_error {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
@@ -117,7 +117,7 @@ macro_rules! error {
 
 /// Logs to the console if in debug mode
 #[macro_export]
-macro_rules! debug_log {
+macro_rules! log_debug {
     ( $x:expr ) => {{
         if cfg!(debug_assertions) {
             println!("{}", $x);

@@ -8,7 +8,7 @@ use axum::{
 };
 use serde_json::Value;
 use std::io::Write;
-use crate::{debug_log, success, error, csvstuff, settings};
+use crate::{log_debug, log_success, log_error, csvstuff, settings};
 
 pub fn authentication(password: String) -> Result<String, StatusCode> {
     let settings = crate::settings::Settings::new().unwrap();
@@ -20,13 +20,13 @@ pub fn authentication(password: String) -> Result<String, StatusCode> {
 }
 
 pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
-    debug_log!("- Scouting data was posted to the server");
+    log_debug!("- Scouting data was posted to the server");
     let settings = crate::settings::Settings::new().unwrap();
 
     let password = headers["x-pass-key"].to_str().unwrap().to_string();
 
     if authentication(password).is_err() {
-        debug_log!("- Password was incorrect");
+        log_debug!("- Password was incorrect");
         return Err(StatusCode::UNAUTHORIZED)
     }
     
@@ -44,7 +44,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
 
     // Makes the headers if the file is empty
     if csvstuff::file_empty(settings.stands_data_dir).unwrap() {
-        success!("File was empty, made headers");
+        log_success!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
@@ -61,7 +61,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     match csvstuff::append_csv(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
-            error!(format!("Uh oh, {}", error));
+            log_error!(format!("Uh oh, {}", error));
             return Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     } 
