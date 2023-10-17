@@ -6,7 +6,7 @@ use axum::{
     extract,
 };
 use std::net::SocketAddr;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{Any, CorsLayer};
 mod csvstuff;
 mod settings;
 mod paths;
@@ -31,7 +31,7 @@ async fn main() {
                 CorsLayer::new()
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
                     .allow_methods([Method::POST])
-                    .allow_headers([http::header::CONTENT_TYPE]),
+                    .allow_headers(Any),
             );
         serve(app, 8000).await;
     };
