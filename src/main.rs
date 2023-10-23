@@ -5,7 +5,8 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use std::net::SocketAddr;
+use axum_server::tls_rustls::RustlsConfig;
+use std::{net::SocketAddr, path::PathBuf};
 use tower_http::cors::{Any, CorsLayer};
 mod csvstuff;
 mod settings;
@@ -48,12 +49,27 @@ async fn main() {
 }
 
 async fn serve(app: Router, port: u16) {
+    let tls_config = RustlsConfig::from_pem_file(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tls_certs")
+            .join("cert.pem"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tls_certs")
+            .join("key.pem"),
+    )
+    .await
+    .unwrap();
     let config = settings::Settings::new().unwrap();
     let addr = SocketAddr::from((config.ip_address, port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     println!("Running on port: {}", &port);
     log_success!(format!("Successfully started on port: {}", &port));
-    axum::serve(listener, app).await.unwrap();
+    // axum::serve(listener, app.clone()).await.unwrap();
+
+    axum_server::bind_rustls(addr, tls_config)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
 
 async fn index() -> impl IntoResponse {
