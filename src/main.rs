@@ -51,18 +51,19 @@ async fn main() {
 
 async fn serve(app: Router, port: u16) {
     let config = settings::Settings::new().unwrap();
-    
+
     let tls_config = RustlsConfig::from_pem_file(
-        "/etc/letsencrypt/live/data.team4198.org/fullchain.pem",
-        "/etc/letsencrypt/live/data.team4198.org/privkey.pem",
+        config.tls_cert_dir,
+        config.tls_key_dir,
     )
     .await
     .unwrap();
 
     let addr = SocketAddr::from((config.ip_address, port));
     // let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    // axum::serve(listener, app.clone()).await.unwrap();
     println!("Running on port: {}", &port);
+    // axum::serve(listener, app.clone()).await.unwrap();
+
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await
