@@ -67,3 +67,9 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     } 
     return Ok("It worked!".into()); // Returns accepted status when done
 }
+
+/// Simply getting the contents of the data.csv file
+pub async fn scouting_get() -> Result<impl IntoResponse, StatusCode> {
+    let data_list = csvstuff::get_data().unwrap();
+    Ok(data_list)
+}

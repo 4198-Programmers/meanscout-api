@@ -178,6 +178,15 @@ pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Gets data.csv's content
+pub fn get_data() -> Result<String, Box<dyn Error>> {
+    let config = settings::Settings::new()?;
+    let mut thing = fs::File::open(&config.stands_data_dir).expect("Failed to open file");
+    let mut string = String::new();
+    thing.read_to_string(&mut string).unwrap();
+    Ok(string)
+}
+
 /// Checks if file is empty
 pub fn file_empty(file: String) -> Result<bool, Box<dyn Error>> {
     let mut thing = fs::File::open(file).expect("Failed to open file");

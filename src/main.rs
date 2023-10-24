@@ -35,7 +35,8 @@ async fn main() {
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
-            );
+            )
+            .route("/scouting", get(paths::data::scouting_get));
         serve(app, config.backend_port).await;
     };
 
