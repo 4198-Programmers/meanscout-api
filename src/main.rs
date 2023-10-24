@@ -86,7 +86,7 @@ macro_rules! log_success {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
-            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
             .unwrap();
         let _ = writeln!(
             file,
@@ -103,7 +103,7 @@ macro_rules! log_warning {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
-            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
             .unwrap();
         let _ = writeln!(
             file,
@@ -120,7 +120,7 @@ macro_rules! log_error {
     ( $x:expr ) => {{
         let mut file = std::fs::OpenOptions::new()
             .append(true)
-            .open(format!("{}", settings::Settings::new().unwrap().logs_dir))
+            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
             .unwrap();
         let _ = writeln!(
             file,
