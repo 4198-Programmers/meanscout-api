@@ -16,8 +16,8 @@ use std::io::Write;
 #[tokio::main]
 async fn main() {
     let frontend = async {
-        let app = Router::new().route("/", get(index));
-        serve(app, 4000).await;
+       let app = Router::new().route("/", get(index));
+       serve(app, 4000).await;
     };
 
     let backend = async {
@@ -44,28 +44,25 @@ async fn main() {
             println!("uh oh!")
         }
     }
-
+    
+    // tokio::join!(backend);
     tokio::join!(frontend, backend);
 }
 
 async fn serve(app: Router, port: u16) {
+    let config = settings::Settings::new().unwrap();
+    
     let tls_config = RustlsConfig::from_pem_file(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tls_certs")
-            .join("cert.pem"),
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tls_certs")
-            .join("key.pem"),
+        "/etc/letsencrypt/live/data.team4198.org/fullchain.pem",
+        "/etc/letsencrypt/live/data.team4198.org/privkey.pem",
     )
     .await
     .unwrap();
-    let config = settings::Settings::new().unwrap();
-    let addr = SocketAddr::from((config.ip_address, port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    println!("Running on port: {}", &port);
-    log_success!(format!("Successfully started on port: {}", &port));
-    // axum::serve(listener, app.clone()).await.unwrap();
 
+    let addr = SocketAddr::from((config.ip_address, port));
+    // let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    // axum::serve(listener, app.clone()).await.unwrap();
+    println!("Running on port: {}", &port);
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await
