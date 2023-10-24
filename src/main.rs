@@ -54,6 +54,15 @@ async fn main() {
 async fn serve(app: Router, port: u16) {
     let config = settings::Settings::new().unwrap();
 
+    let addr = SocketAddr::from((config.ip_address, port));
+
+    // If built in debug mode, doesn't worry about https stuff
+    if cfg!(debug_assertions) {
+        let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+        println!("Running on port: {}", &port);
+        axum::serve(listener, app.clone()).await.unwrap();
+    }
+
     let tls_config = RustlsConfig::from_pem_file(
         config.tls_cert_dir,
         config.tls_key_dir,
@@ -61,11 +70,7 @@ async fn serve(app: Router, port: u16) {
     .await
     .unwrap();
 
-    let addr = SocketAddr::from((config.ip_address, port));
-    // let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     println!("Running on port: {}", &port);
-    // axum::serve(listener, app.clone()).await.unwrap();
-
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await
