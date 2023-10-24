@@ -23,23 +23,16 @@ When it is done building, the binary will be located in `/target/release/` as `m
 
 ## How to set configurations
 ### IP Address and Ports
-To change the ip to run on just change the address variable in [src/main.rs](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/src/main.rs) before building
-```rust
-// line 103-110
-let config = rocket::Config::figment()
-    // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
-    .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000))
-    // Replace the file paths below with wherever your needed pem files are for the right certifications
-    // Or comment it out if you want to live the dangerous life
-    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
+To change the ip or ports to run on just change the variable in [Config.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/axum-rewrite/Config.toml) as shown
+```toml
+ip_address = [0,0,0,0]
+frontend_port = 4000
+backend_port = 8000
 ```
 
 ### Passwords
-Changing the passwords requires changing the password variable on [Line 6](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/src/main.rs#L44) in [settings.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/main/settings.toml). You add or remove strings to the list to add or remove possible passwords.
-```rust
-// Line 6
+Changing the passwords requires changing the password variable in [settings.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/axum-rewrite/Config.toml). You add or remove strings to the list to add or remove possible passwords.
+```toml
 passwords = ["ChangeMe!", "AnotherPassword!"]
 ```
 
@@ -47,7 +40,7 @@ passwords = ["ChangeMe!", "AnotherPassword!"]
 
 ### ***THIS SYSTEM IS STILL UNDER DEVELOPMENT***
 
-The current logging system is set of macros that are called when something happens. This writes whether it was successful, or if something wrong happened into the file `logs/meanscout.log`. 
+The current logging system is set of macros that are called when something happens. This writes whether it was successful, or if something wrong happened into the file `logs/meanscout.log` or a different location configured in Config.toml.
 
 ## Contributing
 
