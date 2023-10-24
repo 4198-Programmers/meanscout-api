@@ -12,3 +12,5 @@ tls_key_dir = "/etc/letsencrypt/live/data.team4198.org/privkey.pem"
 passwords = ["ChangeMe!", "AnotherPassword?"]
 
 ip_address = [0,0,0,0]
+frontend_port = 4000
+backend_port = 8000

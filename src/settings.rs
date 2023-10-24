@@ -112,6 +112,8 @@ pub struct Settings {
     pub tls_key_dir: String,
     pub passwords: Vec<String>,
     pub ip_address: [u8; 4],
+    pub frontend_port: u16,
+    pub backend_port: u16,
 }
 
 impl Settings {

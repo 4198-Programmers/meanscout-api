@@ -15,9 +15,11 @@ use std::io::Write;
 
 #[tokio::main]
 async fn main() {
+    let config = settings::Settings::new().unwrap();
+
     let frontend = async {
        let app = Router::new().route("/", get(index));
-       serve(app, 4000).await;
+       serve(app, config.frontend_port).await;
     };
 
     let backend = async {
@@ -34,7 +36,7 @@ async fn main() {
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
             );
-        serve(app, 8000).await;
+        serve(app, config.backend_port).await;
     };
 
     match csvstuff::init_files() {
