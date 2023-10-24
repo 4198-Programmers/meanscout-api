@@ -119,7 +119,7 @@ impl Settings {
 
         let s = Config::builder()
             // Start off by merging in the "default" configuration file
-            .add_source(File::with_name("settings.toml"))
+            .add_source(File::with_name("Config.toml"))
             // Add in the current environment file
             // Default to 'development' env
             // Note that this file is _optional_
