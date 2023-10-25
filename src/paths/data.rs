@@ -1,4 +1,3 @@
-
 #[allow(unused_imports)]
 use axum::{
     http::{self, HeaderValue, header::HeaderMap, Method, StatusCode},
@@ -7,9 +6,11 @@ use axum::{
     extract,
 };
 use serde_json::Value;
-use std::io::Write;
+use std::io::{Write, Read};
+use std::fs::File;
 use crate::{log_debug, log_success, log_error, csvstuff, settings};
 
+/// Function for authentication (duh)
 pub fn authentication(password: String) -> Result<String, StatusCode> {
     let settings = crate::settings::Settings::new().unwrap();
     if settings.passwords.contains(&password) {

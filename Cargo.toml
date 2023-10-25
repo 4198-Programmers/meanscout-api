@@ -12,7 +12,7 @@ repository = "https://github.com/4198-Programmers/meanscout-api"
 [dependencies]
 axum = { git = "https://github.com/tokio-rs/axum.git", features = ["json"] }
 axum-server = { version = "0.5.1", features = ["tls-rustls"] }
-tower-http = { version = "0.4.0", features = ["cors"] }
+tower-http = { version = "0.4.0", features = ["cors", "fs"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = true, features = ["alloc"] }

@@ -8,6 +8,7 @@ use axum::{
 use axum_server::tls_rustls::RustlsConfig;
 use std::{net::SocketAddr, path::PathBuf};
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::services::{ServeDir, ServeFile};
 mod csvstuff;
 mod settings;
 mod paths;
@@ -19,7 +20,8 @@ async fn main() {
 
     let frontend = async {
        let app = Router::new().route("/", get(index))
-       .route("/scouting", get(paths::data::scouting_get));
+       .route("/scouting", get(paths::data::scouting_get))
+       .nest_service("/favicon.ico", ServeDir::new("favicon.ico"));
        serve(app, config.frontend_port).await;
     };
 
@@ -50,7 +52,7 @@ async fn main() {
         Ok(_e) => {}
         Err(error) => {
             log_error!(format!("Uh oh, {}", error));
-            println!("uh oh!")
+            println!("- Failed to initialize files");
         }
     }
     
@@ -87,6 +89,10 @@ async fn serve(app: Router, port: u16) {
 async fn index() -> impl IntoResponse {
     Html(
         r#"
+        <head>
+            <title>Scouting Root</title>
+            <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        </head>
         Hello World!
         "#,
     )
