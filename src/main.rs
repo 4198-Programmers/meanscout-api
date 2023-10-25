@@ -36,6 +36,12 @@ async fn main() {
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
+            )
+            .route("/pits", post(paths::data::pits_post)).layer(
+                CorsLayer::new()
+                    .allow_origin("*".parse::<HeaderValue>().unwrap())
+                    .allow_methods([Method::POST])
+                    .allow_headers(Any),
             );
         serve(app, config.backend_port).await;
     };
