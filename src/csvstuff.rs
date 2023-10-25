@@ -9,93 +9,13 @@ use std::error::Error;
 use std::io::prelude::*;
 // use config::{ConfigError, Config};
 
-
+/// Struct for form data
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
     pub data: serde_json::Map<String, serde_json::Value>,
 }
 
-/// Struct for the form data
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FormData<'r> {
-    pub team: Cow<'r, str>,
-    pub matchnum: Cow<'r, str>,
-    pub absent: Cow<'r, bool>,
-    pub name: Cow<'r, str>,
-    pub location: Cow<'r, str>, //
-    pub teamleftcommu: Cow<'r, bool>,
-    pub teamcollected: Cow<'r, bool>,
-    pub autochargesta: Cow<'r, str>,
-    pub toggletesting: Cow<'r, [GridData<'r>; 27]>,
-    // pub topcubes: Cow<'r, i64>,
-    // pub middlecubes: Cow<'r, i64>,
-    // pub bottomcubes: Cow<'r, i64>,
-    // pub missedcubes: Cow<'r, i64>,
-    // pub topcones: Cow<'r, i64>,
-    // pub middlecones: Cow<'r, i64>,
-    // pub bottomcones: Cow<'r, i64>,
-    // pub missedcones: Cow<'r, i64>,
-    // pub topcube: Cow<'r, i64>,
-    // pub middlecube: Cow<'r, i64>,
-    // pub bottomcube: Cow<'r, i64>,
-    // pub missedcube: Cow<'r, i64>,
-    // pub topcone: Cow<'r, i64>,
-    // pub middlecone: Cow<'r, i64>,
-    // pub bottomcone: Cow<'r, i64>,
-    // pub missedcone: Cow<'r, i64>,
-    pub defenseplayti: Cow<'r, f64>,
-    pub defensiverati: Cow<'r, i64>,
-    pub teamattemptsc: Cow<'r, bool>,
-    pub chargestation: Cow<'r, str>,
-    // pub links: Cow<'r, i64>,
-    pub anyrobotprobl: Cow<'r, str>,
-    pub fouls: Cow<'r, str>,
-    pub extranotes: Cow<'r, str>,
-    pub driveteamrati: Cow<'r, str>,
-    pub playstylesumm: Cow<'r, str>,
-    pub password: Cow<'r, str>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PitData<'r> {
-    pub team: Cow<'r, str>,
-    pub absent: Cow<'r, bool>,
-    pub name: Cow<'r, str>,
-    pub location: Cow<'r, str>, //
-    pub fullteamname: Cow<'r, str>,
-    pub teamlocation: Cow<'r, str>,
-    pub robotname: Cow<'r, str>,
-    pub drivetraintype: Cow<'r, str>,
-    pub motortype: Cow<'r, str>,
-    pub abilitytomoveco: Cow<'r, f64>,
-    pub abilitytomovecu: Cow<'r, f64>,
-    pub averageconecycl: Cow<'r, f64>,
-    pub averagecubecycl: Cow<'r, f64>,
-    pub successfullgrab: Cow<'r, f64>,
-    pub robotweightlbs: Cow<'r, f64>,
-    pub maxheightcapabi: Cow<'r, str>,
-    pub totalwheelsused: Cow<'r, i64>,
-
-    
-    // pub endgametraction: Cow<'r, i64>,
-    pub wherearepneumat: Cow<'r, str>,
-    pub whereare3dprint: Cow<'r, str>,
-
-    pub programmedautoc: Cow<'r, str>,
-    // pub limelightcapabi: Cow<'r, str>,
-    pub apriltagsused: Cow<'r, bool>,
-    pub reflectivetapeu: Cow<'r, bool>,
-    pub extracamerasuse: Cow<'r, bool>,
-    pub automationviase: Cow<'r, bool>,
-
-    pub endgameabilitys: Cow<'r, str>,
-    pub whatisyourfavor: Cow<'r, str>,
-    pub drivestationsum: Cow<'r, str>,
-    pub arethereanyothe: Cow<'r, str>,
-    pub password: Cow<'r, str>,
-}
-
-/// the thingies in the thingy
+/// the thingies in the thingy (bad)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GridData<'r> {
     pub name: Cow<'r, str>,
