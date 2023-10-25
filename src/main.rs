@@ -18,7 +18,8 @@ async fn main() {
     let config = settings::Settings::new().unwrap();
 
     let frontend = async {
-       let app = Router::new().route("/", get(index));
+       let app = Router::new().route("/", get(index))
+       .route("/scouting", get(paths::data::scouting_get));
        serve(app, config.frontend_port).await;
     };
 
@@ -35,8 +36,7 @@ async fn main() {
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
-            )
-            .route("/scouting", get(paths::data::scouting_get));
+            );
         serve(app, config.backend_port).await;
     };
 
