@@ -30,7 +30,7 @@ async fn main() {
                 // for more details
                 //
                 // pay attention that for some request types like posting content-type: application/json
-                // it is required to add ".allow_headers([http::header::CONTENT_TYPE])"
+                // it is required to add ".allow_headers([http::header::CONTENT_TYPE])" OR ".allow_headers(Any)"
                 // or see this issue https://github.com/tokio-rs/axum/issues/849
                 CorsLayer::new()
                     .allow_origin("*".parse::<HeaderValue>().unwrap())

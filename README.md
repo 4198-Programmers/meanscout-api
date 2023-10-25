@@ -19,8 +19,6 @@ You can just use it by running `cargo run` in the directory the project is locat
 To build it from source you first need to have [rust](https://rust-lang.org) installed, and then cd into the directory and use the command `cargo build --release`<br>
 When it is done building, the binary will be located in `/target/release/` as `meanapi`
 
-### **DO NOT USE THE MAKEFILE YET**
-
 ## How to set configurations
 ### IP Address and Ports
 To change the ip or ports to run on just change the variable in [Config.toml](https://github.com/4198-Programmers/meanscout-api-rust/blob/axum-rewrite/Config.toml) as shown
