@@ -233,6 +233,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn scouting_get() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/scouting")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
     async fn get_logs() {
         let app = app();
 
