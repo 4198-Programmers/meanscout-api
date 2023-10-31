@@ -21,6 +21,7 @@ async fn main() {
     let frontend = async {
        let app = Router::new().route("/", get(index))
        .route("/scouting", get(paths::data::scouting_get))
+       .route("/logs", get(paths::logs::logs_get))
        .nest_service("/favicon.ico", ServeDir::new("favicon.ico"));
        serve(app, config.frontend_port).await;
     };
