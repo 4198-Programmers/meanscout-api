@@ -18,17 +18,32 @@ use std::io::Write;
 async fn main() {
     let config = settings::Settings::new().unwrap();
 
-    let frontend = async {
-       let app = Router::new().route("/", get(index))
-       .route("/scouting", get(paths::data::scouting_get))
-       .route("/logs", get(paths::logs::logs_get))
-       .nest_service("/favicon.ico", ServeDir::new("favicon.ico"));
-       serve(app, config.frontend_port).await;
-    };
+    serve(app(), config.port).await;
 
-    let backend = async {
-        let app = Router::new()
-            .route("/scouting", post(paths::data::scouting_post)).layer(
+    match csvstuff::init_files() {
+        Ok(_e) => {}
+        Err(error) => {
+            log_error!(format!("Uh oh, {}", error));
+            println!("- Failed to initialize files");
+        }
+    }
+    
+    // tokio::join!(backend);
+    // tokio::join!(frontend, backend);
+}
+
+/// Having a function that produces our app makes it easy to call it from tests
+/// without having to create an HTTP server.
+fn app() -> Router {
+    Router::new()
+            // frontend stuff
+            .route("/", get(index))
+            .route("/api/scouting", get(paths::data::scouting_get))
+            .route("/api/logs", get(paths::logs::logs_get))
+            .nest_service("/favicon.ico", ServeDir::new("favicon.ico"))
+
+            // backend stuff
+            .route("/api/scouting", post(paths::data::scouting_post)).layer(
                 // see https://docs.rs/tower-http/latest/tower_http/cors/index.html
                 // for more details
                 //
@@ -40,25 +55,12 @@ async fn main() {
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
             )
-            .route("/pits", post(paths::data::pits_post)).layer(
+            .route("/api/pits", post(paths::data::pits_post)).layer(
                 CorsLayer::new()
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
                     .allow_methods([Method::POST])
                     .allow_headers(Any),
-            );
-        serve(app, config.backend_port).await;
-    };
-
-    match csvstuff::init_files() {
-        Ok(_e) => {}
-        Err(error) => {
-            log_error!(format!("Uh oh, {}", error));
-            println!("- Failed to initialize files");
-        }
-    }
-    
-    // tokio::join!(backend);
-    tokio::join!(frontend, backend);
+            )
 }
 
 async fn serve(app: Router, port: u16) {
