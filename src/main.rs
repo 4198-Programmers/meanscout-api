@@ -27,9 +27,6 @@ async fn main() {
             println!("- Failed to initialize files");
         }
     }
-    
-    // tokio::join!(backend);
-    // tokio::join!(frontend, backend);
 }
 
 /// Having a function that produces our app makes it easy to call it from tests
@@ -90,15 +87,7 @@ async fn serve(app: Router, port: u16) {
 }
 
 async fn index() -> impl IntoResponse {
-    Html(
-        r#"
-        <head>
-            <title>Scouting Root</title>
-            <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        </head>
-        Hello World!
-        "#,
-    )
+    "Hello, World!"
 }
 
 /// Logs a success into the configured log file
@@ -160,4 +149,55 @@ macro_rules! log_debug {
             println!("{}", $x);
         }
     }};
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::{
+        body::Body,
+        extract::connect_info::MockConnectInfo,
+        http::{self, Request, StatusCode},
+    };
+    use serde_json::{json, Value};
+    use std::net::SocketAddr;
+    use tokio::net::TcpListener;
+    use tower::Service; // for `call`
+    use tower::ServiceExt; // for `oneshot` and `ready`
+
+    #[tokio::test]
+    async fn root() {
+        let app = app();
+
+        // `Router` implements `tower::Service<Request<Body>>` so we can
+        // call it like any tower service, no need to run an HTTP server.
+        let response = app
+            .oneshot(Request::builder().uri("/").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert_eq!(&body[..], b"Hello, World!");
+    }
+
+    #[tokio::test]
+    async fn not_found() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/does-not-exist")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert!(body.is_empty());
+    }
 }

@@ -757,11 +757,13 @@ dependencies = [
  "chrono",
  "config",
  "csv",
+ "hyper 0.14.27",
  "lazy_static",
  "serde",
  "serde_json",
  "tera",
  "tokio",
+ "tower",
  "tower-http",
 ]
 
