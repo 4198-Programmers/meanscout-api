@@ -70,6 +70,18 @@ pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Appends to dedicated file
+pub fn append(content: &str, file: &str) -> Result<(), Box<dyn Error>> {
+    init_files()?;
+    let mut file = fs::OpenOptions::new()
+      .append(true)
+      .open(file)
+      .unwrap();
+    
+    let _ = writeln!(file, "{}", format!("{}", content));
+    Ok(())
+}
+
 /// Instead adds to the garbage data csv
 #[allow(unused)]
 pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
@@ -108,7 +120,7 @@ pub fn get_data() -> Result<String, Box<dyn Error>> {
 }
 
 /// Checks if file is empty
-pub fn file_empty(file: String) -> Result<bool, Box<dyn Error>> {
+pub fn file_empty(file: &str) -> Result<bool, Box<dyn Error>> {
     let mut thing = fs::File::open(file).expect("Failed to open file");
     let mut string = String::new();
     thing.read_to_string(&mut string).unwrap();

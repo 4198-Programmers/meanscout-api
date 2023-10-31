@@ -200,4 +200,53 @@ mod tests {
         let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
         assert!(body.is_empty());
     }
+
+    #[tokio::test]
+    async fn scouting_post() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/scouting")
+                    .header("x-pass-key", "ChangeMe!")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn get_logs() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("GET")
+                    .uri("/api/logs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
 }
