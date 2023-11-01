@@ -36,6 +36,7 @@ fn app() -> Router {
             // frontend stuff
             .route("/", get(index))
             .route("/api/scouting", get(paths::data::scouting_get))
+            .route("/api/pits", get(paths::data::pits_get))
             .route("/api/logs", get(paths::logs::logs_get))
             .nest_service("/favicon.ico", ServeDir::new("favicon.ico"))
 

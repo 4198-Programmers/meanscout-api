@@ -125,6 +125,14 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
 
 /// Simply getting the contents of the data.csv file
 pub async fn scouting_get() -> Result<impl IntoResponse, StatusCode> {
-    let data_list = csvstuff::get_data().unwrap();
+    let config = settings::Settings::new().unwrap();
+    let data_list = csvstuff::get_data(&config.stands_data_dir).unwrap();
+    Ok(data_list)
+}
+
+/// Simply getting the contents of the pits.csv file
+pub async fn pits_get() -> Result<impl IntoResponse, StatusCode> {
+    let config = settings::Settings::new().unwrap();
+    let data_list = csvstuff::get_data(&config.pits_data_dir).unwrap();
     Ok(data_list)
 }
