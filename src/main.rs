@@ -233,6 +233,37 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn pits_post() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/pits")
+                    .header("x-pass-key", "ChangeMe!")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "name": {"content": "Clearly, just a name", "category": "name"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
     async fn scouting_get() {
         let app = app();
 

@@ -58,6 +58,7 @@ pub fn file_exists(file: &str) -> bool {
 }
 
 /// Adds to data.csv
+#[allow(unused)]
 pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
     init_files()?;
     let settings_stuff = settings::Settings::new()?;
