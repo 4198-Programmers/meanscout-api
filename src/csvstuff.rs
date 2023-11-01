@@ -32,22 +32,22 @@ pub struct FormDataTest<'r> {
 
 /// Initializing the data file
 pub fn init_files() -> Result<(), Box<dyn Error>> {
-    let settings_stuff = settings::Settings::new()?;
-    if !file_exists(&settings_stuff.stands_data_dir) {
-        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.stands_data_dir).parent().unwrap()).unwrap();
-        File::create(&settings_stuff.stands_data_dir)?;
+    let config = settings::Settings::new()?;
+    if !file_exists(&config.stands_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&config.stands_data_dir).parent().unwrap()).unwrap();
+        File::create(&config.stands_data_dir)?;
     }
-    if !file_exists(&settings_stuff.pits_data_dir) {
-        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.pits_data_dir).parent().unwrap()).unwrap();
-        File::create(&settings_stuff.pits_data_dir)?;
+    if !file_exists(&config.pits_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&config.pits_data_dir).parent().unwrap()).unwrap();
+        File::create(&config.pits_data_dir)?;
     }
-    if !file_exists(&settings_stuff.logs_dir) {
-        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.logs_dir).parent().unwrap()).unwrap();
-        File::create(&settings_stuff.logs_dir)?;
+    if !file_exists(&config.logs_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&config.logs_dir).parent().unwrap()).unwrap();
+        File::create(&config.logs_dir)?;
     }
-    if !file_exists(&settings_stuff.test_data_dir) {
-        std::fs::create_dir_all(std::path::Path::new(&settings_stuff.test_data_dir).parent().unwrap()).unwrap();
-        File::create(&settings_stuff.test_data_dir)?;
+    if !file_exists(&config.test_data_dir) {
+        std::fs::create_dir_all(std::path::Path::new(&config.test_data_dir).parent().unwrap()).unwrap();
+        File::create(&config.test_data_dir)?;
     }
     Ok(())
 }
@@ -61,10 +61,10 @@ pub fn file_exists(file: &str) -> bool {
 #[allow(unused)]
 pub fn append_csv(content: &str) -> Result<(), Box<dyn Error>> {
     init_files()?;
-    let settings_stuff = settings::Settings::new()?;
+    let config = settings::Settings::new()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.stands_data_dir)
+      .open(&config.stands_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -86,11 +86,11 @@ pub fn append(content: &str, file: &str) -> Result<(), Box<dyn Error>> {
 /// Instead adds to the garbage data csv
 #[allow(unused)]
 pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
-    let settings_stuff = settings::Settings::new()?;
+    let config = settings::Settings::new()?;
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.test_data_dir)
+      .open(&config.test_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));
@@ -100,11 +100,11 @@ pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
 /// Adds to data.csv
 #[allow(unused)]
 pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
-    let settings_stuff = settings::Settings::new()?;
+    let config = settings::Settings::new()?;
     init_files()?;
     let mut file = fs::OpenOptions::new()
       .append(true)
-      .open(&settings_stuff.pits_data_dir)
+      .open(&config.pits_data_dir)
       .unwrap();
     
     let _ = writeln!(file, "{}", format!("{}", content));

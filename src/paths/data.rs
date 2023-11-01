@@ -12,8 +12,8 @@ use crate::{log_debug, log_success, log_error, csvstuff, settings};
 
 /// Function for authentication (duh)
 pub fn authentication(password: String) -> Result<String, StatusCode> {
-    let settings = crate::settings::Settings::new().unwrap();
-    if settings.passwords.contains(&password) {
+    let config = crate::settings::Settings::new().unwrap();
+    if config.passwords.contains(&password) {
         return Ok("It worked!".into())
     } else {
         return Err(StatusCode::UNAUTHORIZED)
@@ -22,10 +22,10 @@ pub fn authentication(password: String) -> Result<String, StatusCode> {
 
 pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
     log_debug!("- Scouting data was posted to the server");
-    let settings = crate::settings::Settings::new().unwrap();
+    let config = crate::settings::Settings::new().unwrap();
 
     let test_confirmation = headers.contains_key("x-test");
-    let data_directory = if test_confirmation { settings.test_data_dir } else { settings.stands_data_dir };
+    let data_directory = if test_confirmation { config.test_data_dir } else { config.stands_data_dir };
     let password = headers["x-pass-key"].to_str().unwrap_or("NotAtAllACorrectPassword").to_string();
 
     if authentication(password).is_err() {
@@ -74,10 +74,10 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
 /// Silly http path for pits
 pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
     log_debug!("- Pits data was posted to the server");
-    let settings = crate::settings::Settings::new().unwrap();
+    let config = crate::settings::Settings::new().unwrap();
 
     let test_confirmation = headers.contains_key("x-test");
-    let data_directory = if test_confirmation { settings.test_data_dir } else { settings.pits_data_dir };
+    let data_directory = if test_confirmation { config.test_data_dir } else { config.pits_data_dir };
     let password = headers["x-pass-key"].to_str().unwrap_or("NotAtAllACorrectPassword").to_string();
 
     if authentication(password).is_err() {
