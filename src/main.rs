@@ -27,7 +27,7 @@ async fn main() {
 
     let file = OpenOptions::new()
     .append(true)
-    .open("logs/scouting.log")
+    .open(config.logs_dir)
     .unwrap();
 
     let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
@@ -44,7 +44,7 @@ async fn main() {
         .and_then(tracing_subscriber::fmt::layer()
             .with_writer(Arc::new(file))
             .with_timer(OffsetTime::new(offset, format_description!(
-                "[year]-[month]-[day] [hour repr:24]:[minute]:[second] - "
+                "[year]-[month]-[day] [hour repr:24]:[minute]:[second] -"
             )))
             .with_thread_ids(false).with_thread_names(false).with_ansi(false)
         ))
@@ -53,7 +53,7 @@ async fn main() {
     match csvstuff::init_files() {
         Ok(_e) => {}
         Err(error) => {
-            log_error!(format!("Uh oh, {}", error));
+            tracing::error!("Uh oh, {}", error);
             println!("- Failed to initialize files");
         }
     }

@@ -21,7 +21,7 @@ pub fn authentication(password: String) -> Result<String, StatusCode> {
 }
 
 pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
-    log_debug!("- Scouting data was posted to the server");
+    tracing::debug!("- Scouting data was posted to the server");
     let config = crate::settings::Settings::new().unwrap();
 
     let test_confirmation = headers.contains_key("x-test");
@@ -29,7 +29,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     let password = headers["x-pass-key"].to_str().unwrap_or("NotAtAllACorrectPassword").to_string();
 
     if authentication(password).is_err() {
-        log_debug!("- Password was incorrect");
+        tracing::debug!("- Password was incorrect");
         return Err(StatusCode::UNAUTHORIZED)
     }
     
@@ -44,10 +44,10 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
             b.1.as_object().expect("Failed to turn into object").get_key_value("category").expect("Failed to get category").1.as_str().expect("Failed to get content")
         )
     });
-
+    
     // Makes the headers if the file is empty
     if csvstuff::file_empty(&data_directory).unwrap() {
-        log_success!("File was empty, made headers");
+        tracing::info!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
@@ -64,7 +64,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     match csvstuff::append(&owned_string, &data_directory) {
         Ok(_e) => {}
         Err(error) => {
-            log_error!(format!("Uh oh, {}", error));
+            tracing::error!("Uh oh, {}", error);
             return Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     } 
@@ -73,7 +73,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
 
 /// Silly http path for pits
 pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
-    log_debug!("- Pits data was posted to the server");
+    tracing::debug!("- Pits data was posted to the server");
     let config = crate::settings::Settings::new().unwrap();
 
     let test_confirmation = headers.contains_key("x-test");
@@ -81,7 +81,7 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
     let password = headers["x-pass-key"].to_str().unwrap_or("NotAtAllACorrectPassword").to_string();
 
     if authentication(password).is_err() {
-        log_debug!("- Password was incorrect");
+        tracing::debug!("- Password was incorrect");
         return Err(StatusCode::UNAUTHORIZED)
     }
     
@@ -99,7 +99,7 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
 
     // Makes the headers if the file is empty
     if csvstuff::file_empty(&data_directory).unwrap() {
-        log_success!("File was empty, made headers");
+        tracing::info!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
@@ -116,7 +116,7 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
     match csvstuff::append(&owned_string, &data_directory) {
         Ok(_e) => {}
         Err(error) => {
-            log_error!(format!("Uh oh, {}", error));
+            tracing::error!("Uh oh, {}", error);
             return Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     } 
