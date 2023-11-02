@@ -14,11 +14,31 @@ mod settings;
 mod paths;
 use std::io::Write;
 
+use tracing::{info_span, Span, instrument::WithSubscriber};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+use std::{fs::File, sync::Arc};
+use std::fs::OpenOptions;
+
 #[tokio::main]
+#[tracing::instrument(ret)]
 async fn main() {
     let config = settings::Settings::new().unwrap();
 
-    serve(app(), config.port).await;
+    let file = OpenOptions::new()
+    .append(true)
+    .open("logs/scouting.log")
+    .unwrap();
+
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                // axum logs rejections from built-in extractors with the `axum::rejection`
+                // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
+                "meanapi=debug,tower_http=debug,axum::rejection=trace".into()
+            }),
+        )
+        .with(tracing_subscriber::fmt::layer().pretty().and_then(tracing_subscriber::fmt::layer().with_writer(Arc::new(file)).with_thread_ids(false).with_thread_names(false).with_ansi(false)))
+        .init();
 
     match csvstuff::init_files() {
         Ok(_e) => {}
@@ -27,6 +47,8 @@ async fn main() {
             println!("- Failed to initialize files");
         }
     }
+    serve(app(), config.port).await;
+
 }
 
 /// Having a function that produces our app makes it easy to call it from tests
@@ -69,7 +91,7 @@ async fn serve(app: Router, port: u16) {
     // If built in debug mode, doesn't worry about https stuff
     if cfg!(debug_assertions) {
         let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-        println!("Running on port: {}", &port);
+        tracing::debug!("Successfully started on port: {}", &port);
         axum::serve(listener, app.clone()).await.unwrap();
     }
 
@@ -80,7 +102,8 @@ async fn serve(app: Router, port: u16) {
     .await
     .unwrap();
 
-    println!("Running on port: {}", &port);
+    tracing::debug!("Successfully started on port: {}", &port);
+    
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await
