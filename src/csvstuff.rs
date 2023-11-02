@@ -113,7 +113,6 @@ pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
 
 /// Gets data.csv's content
 pub fn get_data(file: &str) -> Result<String, Box<dyn Error>> {
-    let config = settings::Settings::new()?;
     let mut thing = fs::File::open(file).expect("Failed to open file");
     let mut string = String::new();
     thing.read_to_string(&mut string).unwrap();
