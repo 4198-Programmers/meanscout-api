@@ -15,12 +15,13 @@ mod paths;
 use std::io::Write;
 
 use tracing::{info_span, Span, instrument::WithSubscriber};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+use tracing_subscriber::{fmt::time::OffsetTime, layer::SubscriberExt, util::SubscriberInitExt, Layer};
 use std::{fs::File, sync::Arc};
 use std::fs::OpenOptions;
+use time::macros::format_description;
+use time::UtcOffset;
 
 #[tokio::main]
-#[tracing::instrument(ret)]
 async fn main() {
     let config = settings::Settings::new().unwrap();
 
@@ -28,6 +29,8 @@ async fn main() {
     .append(true)
     .open("logs/scouting.log")
     .unwrap();
+
+    let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
 
     tracing_subscriber::registry()
         .with(
@@ -37,7 +40,14 @@ async fn main() {
                 "meanapi=debug,tower_http=debug,axum::rejection=trace".into()
             }),
         )
-        .with(tracing_subscriber::fmt::layer().pretty().and_then(tracing_subscriber::fmt::layer().with_writer(Arc::new(file)).with_thread_ids(false).with_thread_names(false).with_ansi(false)))
+        .with(tracing_subscriber::fmt::layer().pretty()
+        .and_then(tracing_subscriber::fmt::layer()
+            .with_writer(Arc::new(file))
+            .with_timer(OffsetTime::new(offset, format_description!(
+                "[year]-[month]-[day] [hour repr:24]:[minute]:[second] - "
+            )))
+            .with_thread_ids(false).with_thread_names(false).with_ansi(false)
+        ))
         .init();
 
     match csvstuff::init_files() {
@@ -254,6 +264,37 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn scouting_post_wrong_password() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/scouting")
+                    .header("x-pass-key", "ThisWillNeverBeThePassword")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
 
     #[tokio::test]
