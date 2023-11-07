@@ -162,67 +162,6 @@ async fn handler_404() -> impl IntoResponse {
     (axum::http::StatusCode::NOT_FOUND, "nothing to see here")
 }
 
-/// Logs a success into the configured log file
-#[macro_export]
-macro_rules! log_success {
-    ( $x:expr ) => {{
-        let mut file = std::fs::OpenOptions::new()
-            .append(true)
-            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
-            .unwrap();
-        let _ = writeln!(
-            file,
-            "[ SUCCESS ] {} - {}",
-            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
-            format!("{}", $x)
-        );
-    }};
-}
-
-/// Logs a warning into the configured log file
-#[macro_export]
-macro_rules! log_warning {
-    ( $x:expr ) => {{
-        let mut file = std::fs::OpenOptions::new()
-            .append(true)
-            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
-            .unwrap();
-        let _ = writeln!(
-            file,
-            "[ WARNING ] {} - {}",
-            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
-            format!("{}", $x)
-        );
-    }};
-}
-
-/// Logs an error into the configured log file
-#[macro_export]
-macro_rules! log_error {
-    ( $x:expr ) => {{
-        let mut file = std::fs::OpenOptions::new()
-            .append(true)
-            .open(format!("{}", settings::Settings::new().expect("Failed to open settings for log").logs_dir))
-            .unwrap();
-        let _ = writeln!(
-            file,
-            "[ ERROR ] {} - {}",
-            chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
-            format!("{}", $x)
-        );
-    }};
-}
-
-/// Logs to the console if in debug mode
-#[macro_export]
-macro_rules! log_debug {
-    ( $x:expr ) => {{
-        if cfg!(debug_assertions) {
-            println!("{}", $x);
-        }
-    }};
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

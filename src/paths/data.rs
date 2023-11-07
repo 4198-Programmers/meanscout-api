@@ -8,7 +8,7 @@ use axum::{
 use serde_json::Value;
 use std::io::{Write, Read};
 use std::fs::File;
-use crate::{log_debug, log_success, log_error, csvstuff, settings};
+use crate::{csvstuff, settings};
 
 /// Function for authentication (duh)
 pub fn authentication(password: String) -> Result<String, StatusCode> {
