@@ -1,13 +1,16 @@
 #![allow(unused_imports)]
 use axum::{
-    http::{self, HeaderValue, Method},
-    response::{Html, IntoResponse},
+    http::{self, HeaderValue, Method, Request, HeaderMap},
+    response::{Html, IntoResponse, Response},
     routing::{get, post},
     Router,
+    extract::MatchedPath,
 };
+
 use axum_server::tls_rustls::RustlsConfig;
 use std::{net::SocketAddr, path::PathBuf};
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
 use tower_http::services::{ServeDir, ServeFile};
 mod csvstuff;
 mod settings;
@@ -16,7 +19,7 @@ use std::io::Write;
 
 use tracing::{info_span, Span, instrument::WithSubscriber};
 use tracing_subscriber::{fmt::time::OffsetTime, layer::SubscriberExt, util::SubscriberInitExt, Layer};
-use std::{fs::File, sync::Arc};
+use std::{time::Duration, fs::File, sync::Arc};
 use std::fs::OpenOptions;
 use time::macros::format_description;
 use time::UtcOffset;
@@ -82,15 +85,46 @@ fn app() -> Router {
                 // or see this issue https://github.com/tokio-rs/axum/issues/849
                 CorsLayer::new()
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
-                    .allow_methods([Method::POST])
+                    .allow_methods(Any)
                     .allow_headers(Any),
             )
             .route("/api/pits", post(paths::data::pits_post)).layer(
                 CorsLayer::new()
                     .allow_origin("*".parse::<HeaderValue>().unwrap())
-                    .allow_methods([Method::POST])
+                    .allow_methods(Any)
                     .allow_headers(Any),
             )
+            .layer(
+                TraceLayer::new_for_http()
+                .make_span_with(|request: &Request<_>| {
+                    // Log the matched route's path (with placeholders not filled in).
+                    // Use request.uri() or OriginalUri if you want the real path.
+                    let matched_path = request
+                        .extensions()
+                        .get::<MatchedPath>()
+                        .map(MatchedPath::as_str);
+
+                    info_span!(
+                        "http_request",
+                        method = ?request.method(),
+                        matched_path,
+                        some_other_field = tracing::field::Empty,
+                    )
+                })
+                .on_request(|_request: &Request<_>, _span: &Span| {
+                    // You can use `_span.record("some_other_field", value)` in one of these
+                    // closures to attach a value to the initially empty field in the info_span
+                    // created above.
+                })
+                .on_response(|_response: &Response, _latency: Duration, _span: &Span| {
+                    // ...
+                })
+                .on_eos(
+                    |_trailers: Option<&HeaderMap>, _stream_duration: Duration, _span: &Span| {
+                        // ...
+                    },
+                )
+            ).fallback(handler_404)
 }
 
 async fn serve(app: Router, port: u16) {
@@ -122,6 +156,10 @@ async fn serve(app: Router, port: u16) {
 
 async fn index() -> impl IntoResponse {
     "Hello, World!"
+}
+
+async fn handler_404() -> impl IntoResponse {
+    (axum::http::StatusCode::NOT_FOUND, "nothing to see here")
 }
 
 /// Logs a success into the configured log file
