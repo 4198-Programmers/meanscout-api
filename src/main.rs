@@ -35,12 +35,17 @@ async fn main() {
 
     let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
 
+    let subscriber = match cfg!(debug_assertions) {
+        true => "meanapi=debug,tower_http=debug,axum::rejection=trace",
+        false => "meanapi=info,tower_http=info,axum::rejection=info",
+    };
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
                 // axum logs rejections from built-in extractors with the `axum::rejection`
                 // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
-                "meanapi=debug,tower_http=debug,axum::rejection=trace".into()
+                subscriber.into()
             }),
         )
         .with(tracing_subscriber::fmt::layer().pretty()
@@ -273,7 +278,7 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
-
+    
     #[tokio::test]
     async fn pits_post() {
         let app = app();
