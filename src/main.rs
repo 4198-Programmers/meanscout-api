@@ -15,12 +15,14 @@ use tower_http::services::{ServeDir, ServeFile};
 mod csvstuff;
 mod settings;
 mod paths;
-use std::io::Write;
 
 use tracing::{info_span, Span, instrument::WithSubscriber};
 use tracing_subscriber::{fmt::time::OffsetTime, layer::SubscriberExt, util::SubscriberInitExt, Layer};
-use std::{time::Duration, fs::File, sync::Arc};
-use std::fs::OpenOptions;
+use std::{time::Duration, 
+    fs::{File, OpenOptions}, 
+    sync::Arc,
+    io::Write,
+};
 use time::macros::format_description;
 use time::UtcOffset;
 
