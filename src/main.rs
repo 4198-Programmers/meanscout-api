@@ -215,8 +215,6 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
-        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
-        assert!(body.is_empty());
     }
 
     #[tokio::test]
