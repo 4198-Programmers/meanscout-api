@@ -278,6 +278,37 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
+
+    #[tokio::test]
+    async fn pits_post_wrong_password() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/pits")
+                    .header("x-pass-key", "ThisWillNeverBeThePassword")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
     
     #[tokio::test]
     async fn pits_post() {
