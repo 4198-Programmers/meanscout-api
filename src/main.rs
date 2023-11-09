@@ -1,30 +1,30 @@
-#![allow(unused_imports)]
 use axum::{
-    http::{self, HeaderValue, Method, Request, HeaderMap},
-    response::{Html, IntoResponse, Response},
+    http::{HeaderValue, Request, HeaderMap},
+    response::{IntoResponse, Response},
     routing::{get, post},
     Router,
     extract::MatchedPath,
 };
-
 use axum_server::tls_rustls::RustlsConfig;
-use std::{net::SocketAddr, path::PathBuf};
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::{classify::ServerErrorsFailureClass, trace::TraceLayer};
-use tower_http::services::{ServeDir, ServeFile};
-mod csvstuff;
-mod settings;
-mod paths;
-
-use tracing::{info_span, Span, instrument::WithSubscriber};
+use tower_http::{
+    trace::TraceLayer,
+    services::ServeDir,
+};
+use tracing::{info_span, Span};
 use tracing_subscriber::{fmt::time::OffsetTime, layer::SubscriberExt, util::SubscriberInitExt, Layer};
-use std::{time::Duration, 
-    fs::{File, OpenOptions}, 
+use std::{
+    time::Duration, 
+    fs::OpenOptions, 
     sync::Arc,
-    io::Write,
+    net::SocketAddr,
 };
 use time::macros::format_description;
 use time::UtcOffset;
+
+mod csvstuff;
+mod settings;
+mod paths;
 
 #[tokio::main]
 async fn main() {

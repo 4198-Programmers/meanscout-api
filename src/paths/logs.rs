@@ -1,11 +1,10 @@
-use axum::response::{Html, IntoResponse};
-use serde_json::Value;
-use std::io::{Write, Read};
+use axum::response::IntoResponse;
+use std::io::Read;
 use std::fs::File;
-use crate::{csvstuff, settings};
+use crate::settings;
 
 pub async fn logs_get() -> impl IntoResponse {
-    let config = crate::settings::Settings::new().unwrap();
+    let config = settings::Settings::new().unwrap();
     let mut file = File::open(config.logs_dir).unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();

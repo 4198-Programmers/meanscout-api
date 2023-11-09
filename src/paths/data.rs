@@ -6,8 +6,6 @@ use axum::{
     extract,
 };
 use serde_json::Value;
-use std::io::{Write, Read};
-use std::fs::File;
 use crate::{csvstuff, settings};
 
 /// Function for authentication (duh)
