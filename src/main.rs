@@ -174,13 +174,9 @@ mod tests {
     use super::*;
     use axum::{
         body::Body,
-        extract::connect_info::MockConnectInfo,
-        http::{self, Request, StatusCode},
+        http::{Request, StatusCode},
     };
-    use serde_json::{json, Value};
-    use std::net::SocketAddr;
-    use tokio::net::TcpListener;
-    use tower::Service; // for `call`
+    use serde_json::json;
     use tower::ServiceExt; // for `oneshot` and `ready`
 
     #[tokio::test]
