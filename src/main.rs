@@ -43,13 +43,13 @@ async fn main() {
     .open(config.logs_dir)
     .unwrap();
 
-    let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
-
+    // Checks for debug mode, and sets the subscriber accordingly
     let subscriber = match cfg!(debug_assertions) {
         true => "meanapi=debug,tower_http=debug,axum::rejection=trace",
         false => "meanapi=info,tower_http=info,axum::rejection=info",
     };
 
+    let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -61,7 +61,7 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer().pretty()
         .and_then(tracing_subscriber::fmt::layer()
             .with_writer(Arc::new(file))
-            .with_timer(OffsetTime::new(offset, format_description!(
+            .with_timer(OffsetTime::new(offset, format_description!( // Adds the formatted time to the logs
                 "[year]-[month]-[day] [hour repr:24]:[minute]:[second] -"
             )))
             .with_thread_ids(false).with_thread_names(false).with_ansi(false)
