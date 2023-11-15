@@ -2,12 +2,29 @@
 name = "meanapi"
 version = "1.0.0"
 edition = "2021"
+authors = ["Aiden Lee <aidenjlee9478@gmail.com>"]
+description = "The scouting API backend for FRC Team 4198"
+license = "MIT"
+repository = "https://github.com/4198-Programmers/meanscout-api"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = {version = "0.5.0-rc", features = ["tls", "json"]}
+axum = { git = "https://github.com/tokio-rs/axum.git", features = ["json"] }
+axum-server = { version = "0.5.1", features = ["tls-rustls"] }
+tower-http = { version = "0.4.0", features = ["cors", "fs", "trace"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "std", "local-time"] }
+time = { version = "0.3.30", features = ["macros", "formatting"] }
+hyper = { version = "0.14.27", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = true, features = ["alloc"] }
 chrono = { version = "0.4.23" }
+config = { version = "0.13.3" }
+tera = "1.18.1"
+lazy_static = "1.4.0"
+csv = { version = "1.2.1" }
+
+[dev-dependencies]
+tower = { version = "0.4.13", features = ["util"] }

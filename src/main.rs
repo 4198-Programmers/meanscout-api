@@ -1,331 +1,393 @@
-#[macro_use] extern crate rocket;
-// use rocket::response::status;
-use rocket::serde::json::Json;
-mod csvstuff;
-use rocket::fs::NamedFile;
-use rocket::http::Header;
-use rocket::{Request, Response};
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Status;
-use std::io::Write;
-use chrono::{Datelike, Timelike, Local};
-use std::io::prelude::*;
-use std::fs::File;
+use axum::{
+    http::{HeaderValue, Request, HeaderMap},
+    response::{IntoResponse, Response},
+    routing::{get, post},
+    Router,
+    extract::MatchedPath,
+};
+use axum_server::tls_rustls::RustlsConfig;
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::{
+    trace::TraceLayer,
+    services::ServeDir,
+};
+use tracing::{info_span, Span};
+use tracing_subscriber::{fmt::time::OffsetTime, layer::SubscriberExt, util::SubscriberInitExt, Layer};
+use std::{
+    time::Duration, 
+    fs::OpenOptions, 
+    sync::Arc,
+    net::SocketAddr,
+};
+use time::macros::format_description;
+use time::UtcOffset;
 
-pub struct CORS;
+mod data_utils;
+mod settings;
+mod paths;
 
-// Needed implementation of CORS headers
-#[rocket::async_trait]
-impl Fairing for CORS {
-    fn info(&self) -> Info {
-        Info {
-            name: "Add CORS headers to responses",
-            kind: Kind::Response
-        }
-    }
-
-    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-    }
-}
-
-
-#[get("/")]
-async fn index() -> &'static str {
-    "Hello, world!"
-}
-
-/// Catches all OPTION requests in order to get the CORS related Fairing triggered.
-#[options("/<_..>")]
-fn all_options() {
-    /* Intentionally left empty */
-}
-
-// Accepting POST requests from Meanscout
-#[post("/scouting", data="<csv>")]
-async fn scouting_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
-    // Array for storing the passwords
-    let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
-
-    // Puts all of the data into a vector/array
-    let data = [
-        csv.team.to_string(), 
-        csv.matchnum.to_string(), 
-        csv.absent.to_string().to_uppercase(), 
-        csv.name.to_string(), 
-        csv.location.to_string(), 
-        csv.teamleftcommu.to_string().to_uppercase(), 
-        csv.teamcollected.to_string().to_uppercase(), 
-        csv.autochargesta.to_string(),
-        // format!("{:?}", csv.toggletesting),
-        csv.toggletesting[0].value.to_string(),
-        csv.toggletesting[1].value.to_string(),
-        csv.toggletesting[2].value.to_string(),
-        csv.toggletesting[3].value.to_string(),
-        csv.toggletesting[4].value.to_string(),
-        csv.toggletesting[5].value.to_string(),
-        csv.toggletesting[6].value.to_string(),
-        csv.toggletesting[7].value.to_string(),
-        csv.toggletesting[8].value.to_string(),
-        csv.toggletesting[9].value.to_string(),
-        csv.toggletesting[10].value.to_string(),
-        csv.toggletesting[11].value.to_string(),
-        csv.toggletesting[12].value.to_string(),
-        csv.toggletesting[13].value.to_string(),
-        csv.toggletesting[14].value.to_string(),
-        csv.toggletesting[15].value.to_string(),
-        csv.toggletesting[16].value.to_string(),
-        csv.toggletesting[17].value.to_string(),
-        csv.toggletesting[18].value.to_string(),
-        csv.toggletesting[19].value.to_string(),
-        csv.toggletesting[20].value.to_string(),
-        csv.toggletesting[21].value.to_string(),
-        csv.toggletesting[22].value.to_string(),
-        csv.toggletesting[23].value.to_string(),
-        csv.toggletesting[24].value.to_string(),
-        csv.toggletesting[25].value.to_string(),
-        csv.toggletesting[26].value.to_string(),
-        
-        // csv.topcubes.to_string(), 
-        // csv.bottomcubes.to_string(), 
-        // csv.middlecubes.to_string(), 
-        // csv.missedcubes.to_string(), 
-        // csv.topcones.to_string(), 
-        // csv.middlecones.to_string(), 
-        // csv.bottomcones.to_string(), 
-        // csv.missedcones.to_string(), 
-        // csv.topcube.to_string(), 
-        // csv.middlecube.to_string(), 
-        // csv.bottomcube.to_string(), 
-        // csv.missedcube.to_string(), 
-        // csv.topcone.to_string(), 
-        // csv.middlecone.to_string(), 
-        // csv.bottomcone.to_string(), 
-        // csv.missedcone.to_string(), 
-        format!("{:.1}", csv.defenseplayti),
-        csv.defensiverati.to_string(),
-        csv.teamattemptsc.to_string().to_uppercase(),
-        csv.chargestation.to_string().to_uppercase(), 
-        // csv.links.to_string(),
-        csv.anyrobotprobl.to_string(),
-        csv.fouls.to_string(),
-        csv.extranotes.to_string(),
-        csv.driveteamrati.to_string(),
-        csv.playstylesumm.to_string(),
-    ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i.replace(",", ""));
-        if String::from(i) == csv.playstylesumm.to_string() {
-            thing = format!("{}", i.replace(",", ""))
-        }
-        owned_string.push_str(&thing)
-    }
-    csvstuff::append_csv(&owned_string);    // Adds the information to data.csv
-    return Status::Accepted    // Returns accepted status when done
-}
-
-// Accepting POST requests from Meanscout
-#[post("/test", data="<csv>")]
-async fn test_post(csv: Json<csvstuff::FormData<'_>>) -> Status {
-    // Array for storing the passwords
-    let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
-
-    // Puts all of the data into a vector/array
-    let data = [
-        csv.team.to_string(), 
-        csv.matchnum.to_string(), 
-        csv.absent.to_string().to_uppercase(), 
-        csv.name.to_string().replace(",", ""), 
-        csv.location.to_string(), 
-        csv.teamleftcommu.to_string().to_uppercase(), 
-        csv.teamcollected.to_string().to_uppercase(), 
-        csv.autochargesta.to_string(),
-        // csv.topcubes.to_string(), 
-        // csv.bottomcubes.to_string(), 
-        // csv.middlecubes.to_string(), 
-        // csv.missedcubes.to_string(), 
-        // csv.topcones.to_string(), 
-        // csv.middlecones.to_string(), 
-        // csv.bottomcones.to_string(), 
-        // csv.missedcones.to_string(), 
-        // csv.topcube.to_string(), 
-        // csv.middlecube.to_string(), 
-        // csv.bottomcube.to_string(), 
-        // csv.missedcube.to_string(), 
-        // csv.topcone.to_string(), 
-        // csv.middlecone.to_string(), 
-        // csv.bottomcone.to_string(), 
-        // csv.missedcone.to_string(), 
-        format!("{:.1}", csv.defenseplayti),
-        csv.defensiverati.to_string(),
-        csv.teamattemptsc.to_string().to_uppercase(),
-        csv.chargestation.to_string().to_uppercase(),
-        // csv.links.to_string(),
-        csv.anyrobotprobl.to_string(),
-        csv.fouls.to_string().replace(",", ""),
-        csv.extranotes.to_string().replace(",", ""),
-        csv.driveteamrati.to_string().replace(",", ""),
-        csv.playstylesumm.to_string().replace(",", ""),
-    ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i);
-        if String::from(i) == csv.playstylesumm.to_string() {
-            thing = format!("{}", i)
-        }
-        owned_string.push_str(&thing)
-    }
-    csvstuff::test_csv(&owned_string);    // Adds the information to tes.ctsv
-    return Status::Accepted    // Returns accepted status when done
-}
-
-
-// Accepting POST requests from Meanscout
-#[post("/pits", data="<csv>")]
-async fn pits_post(csv: Json<csvstuff::PitData<'_>>) -> Status {
-    // Array for storing the passwords
-    let passwords = ["ChangeMe!".to_string()];
-    
-    if passwords.contains(&csv.password.to_string()) == false {return Status::Unauthorized}    // If the json interpreted doesn't have the right password, it's bad
-    let mut owned_string: String = "".to_owned();   // String for later to append to
-    let mut thing: String;      // Placeholder string
-
-    // Puts all of the data into a vector/array
-    let data = [
-    csv.team.to_string(),
-    csv.absent.to_string(),
-    csv.name.to_string(),
-    csv.location.to_string(), //
-    csv.fullteamname.to_string().replace(",", ""),
-    csv.teamlocation.to_string().replace(",", ""),
-    csv.robotname.to_string().replace(",", ""),
-    csv.drivetraintype.to_string().replace(",", ""),
-    csv.motortype.to_string().replace(",", ""),
-    csv.abilitytomoveco.to_string().replace(",", ""),
-    csv.abilitytomovecu.to_string().replace(",", ""),
-    csv.averageconecycl.to_string().replace(",", ""),
-    csv.averagecubecycl.to_string().replace(",", ""),
-    csv.successfullgrab.to_string().replace(",", ""),
-    csv.robotweightlbs.to_string().replace(",", ""),
-    csv.maxheightcapabi.to_string().replace(",", ""),
-    csv.totalwheelsused.to_string().replace(",", ""),
-
-    
-    // csv.endgametraction.to_string(),
-    csv.wherearepneumat.to_string().replace(",", ""),
-    csv.whereare3dprint.to_string().replace(",", ""),
-
-    csv.programmedautoc.to_string().replace(",", ""),
-    // csv.limelightcapabi.to_string(),
-    csv.apriltagsused.to_string().replace(",", ""),
-    csv.reflectivetapeu.to_string().replace(",", ""),
-    csv.extracamerasuse.to_string().replace(",", ""),
-    csv.automationviase.to_string().replace(",", ""),
-
-    csv.endgameabilitys.to_string().replace(",", ""),
-    csv.whatisyourfavor.to_string().replace(",", ""),
-    csv.drivestationsum.to_string().replace(",", ""),
-    csv.arethereanyothe.to_string().replace(",", ""),
-    ];
-    for i in data.iter() {   // Iterates through the list and appends the data to a string
-        thing = format!("{}, ", i);
-        if String::from(i) == csv.arethereanyothe.to_string() {
-            thing = format!("{}", i)
-        }
-        owned_string.push_str(&thing)
-    }
-    csvstuff::append_pits(&owned_string);    // Adds the information to data.csv
-    return Status::Accepted    // Returns accepted status when done
-}
-
-
-// When you send a GET request or open it in a web browser it will send the file for data.csv
-#[get("/scouting")]
-async fn scouting_get() -> Option<NamedFile>{
-    NamedFile::open("data.csv").await.ok()    // Returns the filename
-}
-
-// Function for accepting DELETE requests to delete data.csv
-#[delete("/scouting")]
-async fn scouting_delete() -> String {
-    csvstuff::wipe_data();
-    String::from("Wiped data.csv")
-}
-
-// Accessing Logs
-#[get("/logs")]
-async fn logs() -> String {
-    let mut file = File::open("logs/scouting.log").expect("Unable to open the file");
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("Unable to read the file");
-    contents
-}
-
-#[rocket::main]
+#[tokio::main]
 async fn main() {
-    let config = rocket::Config::figment()
-    // The address is set to 0.0.0.0 so it sets the ip to whatever the public network ip is
-    .merge(("address", "0.0.0.0"))
-    .merge(("port", 8000))
-    // Replace the file paths below with wherever your needed pem files are for the right certifications
-    // Or comment it out if you want to live the dangerous life
-    .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
-    .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
-    // .finalize();
-    csvstuff::init_files();
-    success!("Started API");
-    let _ = rocket::custom(config)
-        .mount("/", routes![index, scouting_post, test_post, scouting_get, logs, scouting_delete, pits_post, all_options])  // Just put all of the routes in here
-        .attach(CORS)
-        .launch()
-        .await;
+    let config = settings::Settings::new().unwrap();
+
+    match data_utils::init_files() {
+        Ok(_e) => {}
+        Err(error) => {
+            tracing::error!("Uh oh, {}", error);
+            println!("- Failed to initialize files");
+        }
+    }
+
+    let file = OpenOptions::new()
+    .append(true)
+    .open(config.logs_dir)
+    .unwrap();
+
+    // Checks for debug mode, and sets the subscriber accordingly
+    let subscriber = match cfg!(debug_assertions) {
+        true => "meanapi=debug,tower_http=debug,axum::rejection=trace",
+        false => "meanapi=info,tower_http=info,axum::rejection=info",
+    };
+
+    let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                // axum logs rejections from built-in extractors with the `axum::rejection`
+                // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
+                subscriber.into()
+            }),
+        )
+        .with(tracing_subscriber::fmt::layer().pretty()
+        .and_then(tracing_subscriber::fmt::layer()
+            .with_writer(Arc::new(file))
+            .with_timer(OffsetTime::new(offset, format_description!( // Adds the formatted time to the logs
+                "[year]-[month]-[day] [hour repr:24]:[minute]:[second] -"
+            )))
+            .with_thread_ids(false).with_thread_names(false).with_ansi(false)
+        ))
+        .init();
+
+    
+    serve(app(), config.port).await;
+
 }
 
-#[macro_export]
-macro_rules! error {
-    ( $x:expr ) => {{    
-        let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open("logs/scouting.log")
-        .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ ERROR ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
-    }};
+/// Having a function that produces our app makes it easy to call it from tests
+/// without having to create an HTTP server.
+fn app() -> Router {
+    Router::new()
+            // frontend stuff
+            .route("/", get(index))
+            .route("/api/scouting", get(paths::data::scouting_get))
+            .route("/api/pits", get(paths::data::pits_get))
+            .route("/api/logs", get(paths::logs::logs_get))
+            .nest_service("/favicon.ico", ServeDir::new("favicon.ico"))
+
+            // backend stuff
+            .route("/api/scouting", post(paths::data::scouting_post)).layer(
+                // see https://docs.rs/tower-http/latest/tower_http/cors/index.html
+                // for more details
+                //
+                // pay attention that for some request types like posting content-type: application/json
+                // it is required to add ".allow_headers([http::header::CONTENT_TYPE])" OR ".allow_headers(Any)"
+                // or see this issue https://github.com/tokio-rs/axum/issues/849
+                CorsLayer::new()
+                    .allow_origin("*".parse::<HeaderValue>().unwrap())
+                    .allow_methods(Any)
+                    .allow_headers(Any),
+            )
+            .route("/api/pits", post(paths::data::pits_post)).layer(
+                CorsLayer::new()
+                    .allow_origin("*".parse::<HeaderValue>().unwrap())
+                    .allow_methods(Any)
+                    .allow_headers(Any),
+            )
+            .layer(
+                TraceLayer::new_for_http()
+                .make_span_with(|request: &Request<_>| {
+                    // Log the matched route's path (with placeholders not filled in).
+                    // Use request.uri() or OriginalUri if you want the real path.
+                    let matched_path = request
+                        .extensions()
+                        .get::<MatchedPath>()
+                        .map(MatchedPath::as_str);
+
+                    info_span!(
+                        "http_request",
+                        method = ?request.method(),
+                        matched_path,
+                        some_other_field = tracing::field::Empty,
+                    )
+                })
+                .on_request(|_request: &Request<_>, _span: &Span| {
+                    // You can use `_span.record("some_other_field", value)` in one of these
+                    // closures to attach a value to the initially empty field in the info_span
+                    // created above.
+                })
+                .on_response(|_response: &Response, _latency: Duration, _span: &Span| {
+                    // ...
+                })
+                .on_eos(
+                    |_trailers: Option<&HeaderMap>, _stream_duration: Duration, _span: &Span| {
+                        // ...
+                    },
+                )
+            ).fallback(handler_404)
 }
 
-#[macro_export]
-macro_rules! success {
-    ( $x:expr ) => {{    
-        let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open("logs/scouting.log")
+async fn serve(app: Router, port: u16) {
+    let config = settings::Settings::new().unwrap();
+
+    let addr = SocketAddr::from((config.ip_address, port));
+
+    // If built in debug mode, doesn't worry about https stuff
+    if cfg!(debug_assertions) {
+        let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+        tracing::info!("Successfully started on port: {}", &port);
+        axum::serve(listener, app.clone()).await.unwrap();
+    }
+
+    let tls_config = RustlsConfig::from_pem_file(
+        config.tls_cert_dir,
+        config.tls_key_dir,
+    )
+    .await
+    .unwrap();
+
+    tracing::info!("Successfully started on port: {}", &port);
+    
+    axum_server::bind_rustls(addr, tls_config)
+        .serve(app.into_make_service())
+        .await
         .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ SUCCESS ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
-    }};
 }
 
-#[macro_export]
-macro_rules! warning {
-    ( $x:expr ) => {{    
-        let mut file = std::fs::OpenOptions::new()
-        .append(true)
-        .open("logs/scouting.log")
-        .unwrap();
-        let now = Local::now();
-        let (is_pm, hour) = now.hour12();
-         let _ = writeln!(file, "[ WARNING ] [{}] - {}", format!("{:02}-{:02}-{} {:02}:{:02}:{:02} {}", now.day(), now.month(), now.year(), hour, now.minute(), now.second(), if is_pm { "PM" } else { "AM" }), format!("{}", $x));    
-    }};
+async fn index() -> impl IntoResponse {
+    "Hello, World!"
+}
+
+async fn handler_404() -> impl IntoResponse {
+    (axum::http::StatusCode::NOT_FOUND, "nothing to see here")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::{
+        body::Body,
+        http::{Request, StatusCode},
+    };
+    use serde_json::json;
+    use tower::ServiceExt; // for `oneshot` and `ready`
+
+    #[tokio::test]
+    async fn root() {
+        let app = app();
+
+        // `Router` implements `tower::Service<Request<Body>>` so we can
+        // call it like any tower service, no need to run an HTTP server.
+        let response = app
+            .oneshot(Request::builder().uri("/").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        assert_eq!(&body[..], b"Hello, World!");
+    }
+
+    #[tokio::test]
+    async fn not_found() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/does-not-exist")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn scouting_post() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/scouting")
+                    .header("x-pass-key", "ChangeMe!")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn scouting_post_wrong_password() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/scouting")
+                    .header("x-pass-key", "ThisWillNeverBeThePassword")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn pits_post_wrong_password() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/pits")
+                    .header("x-pass-key", "ThisWillNeverBeThePassword")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "match": {"content": "1", "category": "match"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+    
+    #[tokio::test]
+    async fn pits_post() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/pits")
+                    .header("x-pass-key", "ChangeMe!")
+                    .header("Content-Type", "application/json")
+                    .header("x-test", "True")
+                    .body(Body::from(
+                        json!({
+                            "data": {
+                                "team": {"content": "1234", "category": "team"},
+                                "name": {"content": "Clearly, just a name", "category": "name"},
+                                "category": {"content": "test", "category": "category"},
+                                "content": {"content": "test", "category": "content"},
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn scouting_get() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/scouting")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn pits_get() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/pits")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn get_logs() {
+        let app = app();
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("GET")
+                    .uri("/api/logs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
 }

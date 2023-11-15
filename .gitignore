@@ -3,4 +3,7 @@
 /.vscode
 data.csv
 pits.csv
+test.csv
+test.txt
 /logs/scouting.log
+/meanscout
