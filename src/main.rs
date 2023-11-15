@@ -144,7 +144,7 @@ async fn serve(app: Router, port: u16) {
     // If built in debug mode, doesn't worry about https stuff
     if cfg!(debug_assertions) {
         let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-        tracing::debug!("Successfully started on port: {}", &port);
+        tracing::info!("Successfully started on port: {}", &port);
         axum::serve(listener, app.clone()).await.unwrap();
     }
 
@@ -155,7 +155,7 @@ async fn serve(app: Router, port: u16) {
     .await
     .unwrap();
 
-    tracing::debug!("Successfully started on port: {}", &port);
+    tracing::info!("Successfully started on port: {}", &port);
     
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
