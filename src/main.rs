@@ -30,6 +30,14 @@ mod paths;
 async fn main() {
     let config = settings::Settings::new().unwrap();
 
+    match csvstuff::init_files() {
+        Ok(_e) => {}
+        Err(error) => {
+            tracing::error!("Uh oh, {}", error);
+            println!("- Failed to initialize files");
+        }
+    }
+
     let file = OpenOptions::new()
     .append(true)
     .open(config.logs_dir)
@@ -60,13 +68,7 @@ async fn main() {
         ))
         .init();
 
-    match csvstuff::init_files() {
-        Ok(_e) => {}
-        Err(error) => {
-            tracing::error!("Uh oh, {}", error);
-            println!("- Failed to initialize files");
-        }
-    }
+    
     serve(app(), config.port).await;
 
 }
