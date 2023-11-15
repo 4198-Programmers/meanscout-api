@@ -6,7 +6,7 @@ use axum::{
     extract,
 };
 use serde_json::Value;
-use crate::{csvstuff, settings};
+use crate::{data_utils, settings};
 
 /// Function for authentication (duh)
 pub fn authentication(password: String) -> Result<String, StatusCode> {
@@ -18,7 +18,7 @@ pub fn authentication(password: String) -> Result<String, StatusCode> {
     }
 }
 
-pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
+pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<data_utils::Data>) -> Result<String, StatusCode> {
     tracing::debug!("- Scouting data was posted to the server");
     let config = crate::settings::Settings::new().unwrap();
 
@@ -44,12 +44,12 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     });
     
     // Makes the headers if the file is empty
-    if csvstuff::file_empty(&data_directory).unwrap() {
+    if data_utils::file_empty(&data_directory).unwrap() {
         tracing::info!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
-        let _ = csvstuff::append(&header, &data_directory);
+        let _ = data_utils::append(&header, &data_directory);
     }
 
     for i in hash_vec {
@@ -59,7 +59,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
     }
 
     // Adds the information to data.csv
-    match csvstuff::append(&owned_string, &data_directory) {
+    match data_utils::append(&owned_string, &data_directory) {
         Ok(_e) => {}
         Err(error) => {
             tracing::error!("Uh oh, {}", error);
@@ -70,7 +70,7 @@ pub async fn scouting_post(headers: HeaderMap, extract::Json(data): Json<csvstuf
 }
 
 /// Silly http path for pits
-pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::Data>) -> Result<String, StatusCode> {
+pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<data_utils::Data>) -> Result<String, StatusCode> {
     tracing::debug!("- Pits data was posted to the server");
     let config = crate::settings::Settings::new().unwrap();
 
@@ -96,12 +96,12 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
     });
 
     // Makes the headers if the file is empty
-    if csvstuff::file_empty(&data_directory).unwrap() {
+    if data_utils::file_empty(&data_directory).unwrap() {
         tracing::info!("File was empty, made headers");
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
-        let _ = csvstuff::append(&header, &data_directory);
+        let _ = data_utils::append(&header, &data_directory);
     }
 
     for i in hash_vec {
@@ -111,7 +111,7 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
     }
 
     // Adds the information to data.csv
-    match csvstuff::append(&owned_string, &data_directory) {
+    match data_utils::append(&owned_string, &data_directory) {
         Ok(_e) => {}
         Err(error) => {
             tracing::error!("Uh oh, {}", error);
@@ -124,13 +124,13 @@ pub async fn pits_post(headers: HeaderMap, extract::Json(data): Json<csvstuff::D
 /// Simply getting the contents of the data.csv file
 pub async fn scouting_get() -> Result<impl IntoResponse, StatusCode> {
     let config = settings::Settings::new().unwrap();
-    let data_list = csvstuff::get_data(&config.stands_data_dir).unwrap();
+    let data_list = data_utils::get_data(&config.stands_data_dir).unwrap();
     Ok(data_list)
 }
 
 /// Simply getting the contents of the pits.csv file
 pub async fn pits_get() -> Result<impl IntoResponse, StatusCode> {
     let config = settings::Settings::new().unwrap();
-    let data_list = csvstuff::get_data(&config.pits_data_dir).unwrap();
+    let data_list = data_utils::get_data(&config.pits_data_dir).unwrap();
     Ok(data_list)
 }

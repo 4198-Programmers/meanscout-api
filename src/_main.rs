@@ -19,7 +19,7 @@ use std::io::Write;
 use std::fs::File;
 use std::io::prelude::*;
 
-mod csvstuff;
+mod data_utils;
 mod settings;
 mod catchers;
 mod graphs;
@@ -138,7 +138,7 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
 
     let _ = writeln!(file, "{},", format!("{}", json));
 
-    let data: csvstuff::Data = serde_json::from_str(&json).unwrap();
+    let data: data_utils::Data = serde_json::from_str(&json).unwrap();
 
     let mut owned_string: String = "".to_owned(); // String for later to append to
     let mut thing: String; // Placeholder string
@@ -151,12 +151,12 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
         )
     });
 
-    if csvstuff::file_empty("data/data.csv".into()).unwrap() {
+    if data_utils::file_empty("data/data.csv".into()).unwrap() {
         let mut header: String = "".to_owned();
         println!("yeah");
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
-        let _ = csvstuff::append_csv(&header);
+        let _ = data_utils::append_csv(&header);
     }
 
     for i in hash_vec {
@@ -164,7 +164,7 @@ async fn scouting_post(_key: PassKey<'_>, json: String) -> Status {
         thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
         owned_string.push_str(&thing)
     }
-    match csvstuff::append_csv(&owned_string) {
+    match data_utils::append_csv(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
             error!(format!("Uh oh, {}", error));
@@ -184,7 +184,7 @@ async fn pits_post(_key: PassKey<'_>, json: String) -> Status {
 
     let _ = writeln!(file, "{}", format!("{}", json));
 
-    let data: csvstuff::Data = serde_json::from_str(&json).unwrap();
+    let data: data_utils::Data = serde_json::from_str(&json).unwrap();
 
     let mut owned_string: String = "".to_owned(); // String for later to append to
     let mut thing: String; // Placeholder string
@@ -197,11 +197,11 @@ async fn pits_post(_key: PassKey<'_>, json: String) -> Status {
         )
     });
 
-    if csvstuff::file_empty("data/pits.csv".into()).unwrap() {
+    if data_utils::file_empty("data/pits.csv".into()).unwrap() {
         let mut header: String = "".to_owned();
         let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
         for val in mapped {header.push_str(format!("{},", val).as_str())}
-        let _ = csvstuff::append_csv(&header);
+        let _ = data_utils::append_csv(&header);
     }
 
     for i in hash_vec {
@@ -209,7 +209,7 @@ async fn pits_post(_key: PassKey<'_>, json: String) -> Status {
         thing = format!("{}, ", i.1.as_object().unwrap().get_key_value("content").expect("Failed to get content").1.to_string().replace(",", ""));
         owned_string.push_str(&thing)
     }
-    match csvstuff::append_pits(&owned_string) {
+    match data_utils::append_pits(&owned_string) {
         Ok(_e) => {}
         Err(error) => {
             error!(format!("Uh oh, {}", error));
@@ -228,7 +228,7 @@ async fn scouting_get() -> Option<NamedFile> {
 // Function for accepting DELETE requests to delete data.csv
 #[delete("/scouting")]
 async fn scouting_delete() -> String {
-    csvstuff::wipe_data();
+    data_utils::wipe_data();
     String::from("Wiped data.csv")
 }
 
@@ -260,7 +260,7 @@ async fn main() {
     .merge(("tls.certs", "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"))
     .merge(("tls.key", "/etc/letsencrypt/live/data.team4198.org/privkey.pem"));
     // .finalize();
-    match csvstuff::init_files() {
+    match data_utils::init_files() {
         Ok(_e) => {}
         Err(error) => {
             error!(format!("Uh oh, {}", error))

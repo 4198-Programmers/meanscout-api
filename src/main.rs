@@ -22,7 +22,7 @@ use std::{
 use time::macros::format_description;
 use time::UtcOffset;
 
-mod csvstuff;
+mod data_utils;
 mod settings;
 mod paths;
 
@@ -30,7 +30,7 @@ mod paths;
 async fn main() {
     let config = settings::Settings::new().unwrap();
 
-    match csvstuff::init_files() {
+    match data_utils::init_files() {
         Ok(_e) => {}
         Err(error) => {
             tracing::error!("Uh oh, {}", error);
