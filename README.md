@@ -1,4 +1,4 @@
-# Meanscout Api (RUST EDITION)
+# Meanscout Api
 
 An attempt at making the meanscout api in rust for maybe better safety<br>
 (and honestly I trust this version a lot more)
