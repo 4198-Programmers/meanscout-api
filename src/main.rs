@@ -68,7 +68,6 @@ async fn main() {
         ))
         .init();
 
-    
     serve(app(), config.port).await;
 
 }
