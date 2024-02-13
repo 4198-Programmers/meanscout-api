@@ -7,8 +7,6 @@ use axum::{
     Json,
 };
 use serde_json::Value;
-use csv::Writer;
-use std::fs::OpenOptions;
 use json_objects_to_csv::flatten_json_object::ArrayFormatting;
 use json_objects_to_csv::flatten_json_object::Flattener;
 use json_objects_to_csv::Json2Csv;
@@ -24,12 +22,13 @@ pub fn authentication(password: String) -> Result<String, StatusCode> {
     }
 }
 
+/// Silly https path for posting scouting data
 pub async fn scouting_post(
     headers: HeaderMap,
     data: string::String,
 ) -> Result<String, StatusCode> {
     tracing::debug!("- Scouting data was posted to the server");
-    let config = crate::settings::Settings::new().unwrap();
+    let config = crate::settings::Settings::new().expect("Couldn't get settings");
 
     let test_confirmation = headers.contains_key("x-test");
     let data_directory = if test_confirmation {
@@ -37,16 +36,10 @@ pub async fn scouting_post(
     } else {
         config.stands_data_dir
     };
-    let mut file = OpenOptions::new()
-    .write(true)
-    .append(true)
-    .create(true)
-    .open(&data_directory)
-    .unwrap();
 
     let password = headers["x-pass-key"]
         .to_str()
-        .unwrap_or("NotAtAllACorrectPassword") // Uses the password from the header, if it doesn't exist, it uses a default password that will be wrong
+        .unwrap_or("NotAtAllACorrectPassword!!!!! (probably don't edit this)") // Uses the password from the header, if it doesn't exist, it uses a default password that will be wrong
         .to_string();
 
     if authentication(password).is_err() {
@@ -54,67 +47,84 @@ pub async fn scouting_post(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
-    // let mut og_csv_writer = Writer::from_path(&data_directory).unwrap();
-    let mut header_written = false;
-    // for item in data.data {
-    //     let json_value: Value = serde_json::from_str(&item.1.as_str().unwrap()).unwrap();
+    // Adds a backup of the data to a backup file in config.stands_data_json
+    let filename = format!("backup-{}.json", chrono::Local::now().format("%Y-%m-%d-%H-%M-%S"));
+    data_utils::backup_json(&data, &filename).expect("Couldn't backup data");
 
-    //     if !header_written {
-    //         let header: Vec<String> = json_value
-    //             .as_object()
-    //             .unwrap()
-    //             .keys()
-    //             .map(|key| key.to_string())
-    //             .collect();
-    //         csv_writer.write_record(&header).unwrap();
-    //         header_written = true;
-    //     }
+    let mut json_data: Value = serde_json::from_str(&data).unwrap();
 
-    //     let row: Vec<String> = json_value
-    //         .as_object()
-    //         .unwrap()
-    //         .values()
-    //         .map(|value| value.to_string())
-    //         .collect();
-    //     csv_writer.write_record(&row).unwrap();\
-    // }
-
-        let flattener = Flattener::new()
-            .set_key_separator(".")
-            .set_array_formatting(ArrayFormatting::Surrounded{
-                start: "[".to_string(),
-                end: "]".to_string()
-            })
-            .set_preserve_empty_arrays(true)
-            .set_preserve_empty_objects(true);
-        let input = data.as_bytes();
-        let mut output = Vec::<u8>::new();
-
-        let csv_writer = csv::WriterBuilder::new()
-            .delimiter(b',')
-            .has_headers(false)
-            .from_writer(&mut output);
-
-        Json2Csv::new(flattener)
-            .convert_from_reader(input, csv_writer)
-            .expect("Couldn't convert csv");
-
-        if data_utils::file_empty(&data_directory).unwrap() {
-            tracing::info!("File was empty, made headers");
-            data_utils::append(&output.lines()
-                .map(|x| x.unwrap())
-                .collect::<Vec<String>>().join("\n"), 
-            &data_directory).expect("Couldn't output data to file");
+    let teleop_datapoints = ["teleop-scored-in-amp", "teleop-missed-in-amp", "teleop-scored-in-non-amplified", "teleop-scored-in-amplified", "teleop-missed-in-speaker", "teleop-scored-in-trap", "teleop-missed-in-trap"];
+    for point in teleop_datapoints {json_data["data"][point] = 0.into()}
+    if let Some(teleop_scoring) = json_data.clone()["data"]["teleop-scoring-2024"].as_array() {
+        for point in teleop_scoring {
+            match point.as_str() {  // Adds the total of each point to the corresponding data object
+                Some("as") => json_data["data"]["teleop-scored-in-amp"] = (json_data["data"]["teleop-scored-in-amp"].as_i64().expect("Something went wrong as")+1).into(),
+                Some("am") => json_data["data"]["teleop-missed-in-amp"] = (json_data["data"]["teleop-missed-in-amp"].as_i64().expect("Something went wrong am")+1).into(),
+                Some("ss") => json_data["data"]["teleop-scored-in-non-amplified"] = (json_data["data"]["teleop-scored-in-non-amplified"].as_i64().expect("Something went wrong ss")+1).into(),
+                Some("sa") => json_data["data"]["teleop-scored-in-amplified"] = (json_data["data"]["teleop-scored-in-amplified"].as_i64().expect("Something went wrong sa")+1).into(),
+                Some("sm") => json_data["data"]["teleop-missed-in-speaker"] = (json_data["data"]["teleop-missed-in-speaker"].as_i64().expect("Something went wrong sm")+1).into(),
+                Some("ts") => json_data["data"]["teleop-scored-in-trap"] = (json_data["data"]["teleop-scored-in-trap"].as_i64().expect("Something went wrong ts")+1).into(),
+                Some("tm ") => json_data["data"]["teleop-missed-in-trap"] = (json_data["data"]["teleop-missed-in-trap"].as_i64().expect("Something went wrong tm")+1).into(),
+                _ => {tracing::info!("Another datapoint was detected in teleop-scoring-2024")} // Ignore other values, but log it anyway
+            }
         }
-        else {
-            data_utils::append(&output.lines()
-                .skip(1)
-                .map(|x| x.unwrap())
-                .collect::<Vec<String>>().join(""),
-                &data_directory
-            ).expect("Couldn't output data to file");
+    }
+
+    let auto_datapoints = ["auto-scored-in-amp", "auto-missed-in-amp", "auto-scored-in-speaker", "auto-missed-in-speaker"];
+    for point in auto_datapoints {json_data["data"][point] = 0.into()}
+    if let Some(teleop_scoring) = json_data.clone()["data"]["auto-scoring-2024"].as_array() {
+        for point in teleop_scoring {
+            match point.as_str() {  // Adds the total of each point to the corresponding data object
+                Some("as") => json_data["data"]["auto-scored-in-amp"] = (json_data["data"]["auto-scored-in-amp"].as_i64().expect("Something went wrong as")+1).into(),
+                Some("am") => json_data["data"]["auto-missed-in-amp"] = (json_data["data"]["auto-missed-in-amp"].as_i64().expect("Something went wrong am")+1).into(),
+                Some("ss") => json_data["data"]["auto-scored-in-speaker"] = (json_data["data"]["auto-scored-in-speaker"].as_i64().expect("Something went wrong ss")+1).into(),
+                Some("sm") => json_data["data"]["auto-missed-in-speaker"] = (json_data["data"]["auto-missed-in-speaker"].as_i64().expect("Something went wrong sm")+1).into(),
+                _ => {tracing::info!("Another datapoint was detected in teleop-scoring-2024")} // Ignore other values, but log it anyway
+            }
         }
-        return Ok("It worked!".into()); // Returns accepted status when done
+    }
+    json_data["data"].as_object_mut().unwrap().remove("teleop-scoring-2024");   // Removes the list of points scored, as it's no longer needed
+    json_data["data"].as_object_mut().unwrap().remove("auto-scoring-2024");     // Removes the list of points scored, as it's no longer needed
+    println!("{}", json_data.to_string());
+
+    let new_data = json_data.clone().to_string();
+
+    let flattener = Flattener::new()
+        .set_key_separator(".")
+        .set_array_formatting(ArrayFormatting::Surrounded{
+            start: "[".to_string(),
+            end: "]".to_string()
+        })
+        .set_preserve_empty_arrays(true)
+        .set_preserve_empty_objects(true);
+    let input = new_data.as_bytes();
+    let mut output = Vec::<u8>::new();
+
+    let csv_writer = csv::WriterBuilder::new()
+        .delimiter(b',')
+        .has_headers(false)
+        .from_writer(&mut output);
+    Json2Csv::new(flattener)
+        .convert_from_reader(input, csv_writer)
+        .expect("Couldn't convert csv");
+
+    // If there are no headers, it makes headers
+    if data_utils::file_empty(&data_directory).expect("Couldn't check if file was empty") {
+        tracing::info!("File was empty, made headers");
+        data_utils::append(&output.lines()
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>().join("\n"), 
+        &data_directory).expect("Couldn't output data to file");
+    }
+    else {
+        data_utils::append(&output.lines()
+            .skip(1)
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>().join(""),
+            &data_directory
+        ).expect("Couldn't output data to file");
+    }
+    return Ok("It worked!".into()); // Returns accepted status when done
 }
 
 /// Silly http path for pits

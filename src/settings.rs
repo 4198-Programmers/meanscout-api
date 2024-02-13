@@ -108,6 +108,7 @@ pub struct Settings {
     pub pits_data_dir: String,
     pub stands_data_dir: String,
     pub test_data_dir: String,
+    pub stands_data_json: String,
     pub tls_cert_dir: String,
     pub tls_key_dir: String,
     pub passwords: Vec<String>,
