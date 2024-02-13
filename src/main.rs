@@ -39,9 +39,9 @@ async fn main() {
     }
 
     let file = OpenOptions::new()
-    .append(true)
-    .open(config.logs_dir)
-    .unwrap();
+        .append(true)
+        .open(config.logs_dir)
+        .unwrap();
 
     // Checks for debug mode, and sets the subscriber accordingly
     let subscriber = match cfg!(debug_assertions) {
@@ -49,7 +49,8 @@ async fn main() {
         false => "meanapi=info,tower_http=info,axum::rejection=info",
     };
 
-    let offset = UtcOffset::from_hms(-5, 0, 0).expect("should get local offset!");
+    let offset = UtcOffset::from_hms(-5, 0, 0).expect("Couldn't get local time offset");
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -136,7 +137,7 @@ fn app() -> Router {
 }
 
 async fn serve(app: Router, port: u16) {
-    let config = settings::Settings::new().unwrap();
+    let config = settings::Settings::new().expect("Couldn't find settings");
 
     let addr = SocketAddr::from((config.ip_address, port));
 
@@ -144,7 +145,7 @@ async fn serve(app: Router, port: u16) {
     if cfg!(debug_assertions) {
         let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
         tracing::info!("Successfully started on port: {}", &port);
-        axum::serve(listener, app.clone()).await.unwrap();
+        axum::serve(listener, app.clone()).await.expect("Failed to serve service");
     }
 
     let tls_config = RustlsConfig::from_pem_file(
@@ -159,7 +160,7 @@ async fn serve(app: Router, port: u16) {
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .expect("Failed to serve service");
 }
 
 async fn index() -> impl IntoResponse {
@@ -229,10 +230,43 @@ mod tests {
                     .body(Body::from(
                         json!({
                             "data": {
-                                "team": {"content": "1234", "category": "team"},
-                                "match": {"content": "1", "category": "match"},
-                                "category": {"content": "test", "category": "category"},
-                                "content": {"content": "test", "category": "content"},
+                                "metadata": {
+                                    "event": "2024camb",
+                                    "match": {
+                                        "level": "qm",
+                                        "number": 3,
+                                        "set": 1
+                                    },
+                                    "bot": "9999",
+                                    "timestamp": 1711729092182i64,
+                                    "scouter": {
+                                        "name": "kabir",
+                                        "team": "1072",
+                                        "app": "tpw"
+                                    }
+                                },
+                                "abilities": {
+                                    "auto-center-line-pick-up": false,
+                                    "ground-pick-up": true,
+                                    "auto-leave-starting-zone": true,
+                                    "teleop-spotlight-2024": false,
+                                    "teleop-stage-level-2024": 3
+                                },
+                                "counters": {
+                            
+                                },
+                                "data": {
+                                    "auto-scoring-2024": ["ss", "sm"],
+                                    "teleop-scoring-2024": ["ss", "as", "am", "as", "sa", "ts"],
+                                    "notes": "decent defense and intake always worked smoothly\ncycles were relatively slow though"
+                                },
+                                "ratings": {
+                                    "defense-skill": 3,
+                                    "driver-skill": 3,
+                                    "intake-consistency": 4,
+                                    "speed": 2,
+                                    "stability": 3
+                                },
                             }
                         })
                         .to_string(),
@@ -260,10 +294,43 @@ mod tests {
                     .body(Body::from(
                         json!({
                             "data": {
-                                "team": {"content": "1234", "category": "team"},
-                                "match": {"content": "1", "category": "match"},
-                                "category": {"content": "test", "category": "category"},
-                                "content": {"content": "test", "category": "content"},
+                                "metadata": {
+                                    "event": "2024camb",
+                                    "match": {
+                                        "level": "qm",
+                                        "number": 3,
+                                        "set": 1
+                                    },
+                                    "bot": "9999",
+                                    "timestamp": 1711729092182i64,
+                                    "scouter": {
+                                        "name": "kabir",
+                                        "team": "1072",
+                                        "app": "tpw"
+                                    }
+                                },
+                                "abilities": {
+                                    "auto-center-line-pick-up": false,
+                                    "ground-pick-up": true,
+                                    "auto-leave-starting-zone": true,
+                                    "teleop-spotlight-2024": false,
+                                    "teleop-stage-level-2024": 3
+                                },
+                                "counters": {
+                            
+                                },
+                                "data": {
+                                    "auto-scoring-2024": ["ss", "sm"],
+                                    "teleop-scoring-2024": ["ss", "as", "am", "as", "sa", "ts"],
+                                    "notes": "decent defense and intake always worked smoothly\ncycles were relatively slow though"
+                                },
+                                "ratings": {
+                                    "defense-skill": 3,
+                                    "driver-skill": 3,
+                                    "intake-consistency": 4,
+                                    "speed": 2,
+                                    "stability": 3
+                                },
                             }
                         })
                         .to_string(),
@@ -291,10 +358,43 @@ mod tests {
                     .body(Body::from(
                         json!({
                             "data": {
-                                "team": {"content": "1234", "category": "team"},
-                                "match": {"content": "1", "category": "match"},
-                                "category": {"content": "test", "category": "category"},
-                                "content": {"content": "test", "category": "content"},
+                                "metadata": {
+                                    "event": "2024camb",
+                                    "match": {
+                                        "level": "qm",
+                                        "number": 3,
+                                        "set": 1
+                                    },
+                                    "bot": "9999",
+                                    "timestamp": 1711729092182i64,
+                                    "scouter": {
+                                        "name": "kabir",
+                                        "team": "1072",
+                                        "app": "tpw"
+                                    }
+                                },
+                                "abilities": {
+                                    "auto-center-line-pick-up": false,
+                                    "ground-pick-up": true,
+                                    "auto-leave-starting-zone": true,
+                                    "teleop-spotlight-2024": false,
+                                    "teleop-stage-level-2024": 3
+                                },
+                                "counters": {
+                            
+                                },
+                                "data": {
+                                    "auto-scoring-2024": ["ss", "sm"],
+                                    "teleop-scoring-2024": ["ss", "as", "am", "as", "sa", "ts"],
+                                    "notes": "decent defense and intake always worked smoothly\ncycles were relatively slow though"
+                                },
+                                "ratings": {
+                                    "defense-skill": 3,
+                                    "driver-skill": 3,
+                                    "intake-consistency": 4,
+                                    "speed": 2,
+                                    "stability": 3
+                                },
                             }
                         })
                         .to_string(),
@@ -322,10 +422,43 @@ mod tests {
                     .body(Body::from(
                         json!({
                             "data": {
-                                "team": {"content": "1234", "category": "team"},
-                                "name": {"content": "Clearly, just a name", "category": "name"},
-                                "category": {"content": "test", "category": "category"},
-                                "content": {"content": "test", "category": "content"},
+                                "metadata": {
+                                    "event": "2024camb",
+                                    "match": {
+                                        "level": "qm",
+                                        "number": 3,
+                                        "set": 1
+                                    },
+                                    "bot": "9999",
+                                    "timestamp": 1711729092182i64,
+                                    "scouter": {
+                                        "name": "kabir",
+                                        "team": "1072",
+                                        "app": "tpw"
+                                    }
+                                },
+                                "abilities": {
+                                    "auto-center-line-pick-up": false,
+                                    "ground-pick-up": true,
+                                    "auto-leave-starting-zone": true,
+                                    "teleop-spotlight-2024": false,
+                                    "teleop-stage-level-2024": 3
+                                },
+                                "counters": {
+                            
+                                },
+                                "data": {
+                                    "auto-scoring-2024": ["ss", "sm"],
+                                    "teleop-scoring-2024": ["ss", "as", "am", "as", "sa", "ts"],
+                                    "notes": "decent defense and intake always worked smoothly\ncycles were relatively slow though"
+                                },
+                                "ratings": {
+                                    "defense-skill": 3,
+                                    "driver-skill": 3,
+                                    "intake-consistency": 4,
+                                    "speed": 2,
+                                    "stability": 3
+                                },
                             }
                         })
                         .to_string(),
