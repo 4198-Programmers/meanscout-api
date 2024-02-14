@@ -1,6 +1,6 @@
 # Meanscout Api
 
-An attempt at making the meanscout api in rust for maybe better safety<br>
+An attempt at making the meanscout api in rust for maybe better safety. Can't be *too* easy to make.<br>
 (and honestly I trust this version a lot more)
 
 This network API backend is made for the companion webapp we forked from Aidan Linerud of FRC Team 2471, [Meanscout](https://github.com/4198-Programmers/MeanScout_4198). The exact version of Meanscout we use is under the main branch located [here](https://github.com/4198-Programmers/MeanScout_4198/tree/main). The API is made to intake and process the data coming from Meanscout. It will then put it into the file `data.csv`.
@@ -46,4 +46,4 @@ If you would like to contribute to the project you can do any of the following.
   <img src="https://contrib.rocks/image?repo=4198-Programmers/meanscout-api-rust" />
 </a>
 
-Special thanks to <a href="https://github.com/jmelancon"> Joseph Melancon</a> for kicking off our teams digital scouting efforts advising us and much more
+Special thanks to <a href="https://github.com/jmelancon"> Joseph Melancon</a> for kicking off our teams digital scouting efforts, advising us, and much more

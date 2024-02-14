@@ -24,12 +24,6 @@ pub struct GridData<'r> {
     // toggle: Option<Cow<'r, str>>,
 }
 
-/// Just a test struct
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FormDataTest<'r> {
-    test: Cow<'r, str>
-}
-
 /// Initializing the data file
 pub fn init_files() -> Result<(), Box<dyn Error>> {
     let config = settings::Settings::new()?;
@@ -48,6 +42,10 @@ pub fn init_files() -> Result<(), Box<dyn Error>> {
     if !file_exists(&config.test_data_dir) {
         std::fs::create_dir_all(std::path::Path::new(&config.test_data_dir).parent().unwrap()).unwrap();
         File::create(&config.test_data_dir)?;
+    }
+    if !file_exists(&config.stands_data_json) {
+        std::fs::create_dir_all(std::path::Path::new(&config.stands_data_json)).unwrap();
+        // File::create(&config.stands_data_json)?;
     }
     Ok(())
 }
@@ -97,7 +95,7 @@ pub fn append_test(content: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Adds to data.csv
+/// Adds to pits.csv
 #[allow(unused)]
 pub fn append_pits(content: &str) -> Result<(), Box<dyn Error>> {
     let config = settings::Settings::new()?;
@@ -130,6 +128,20 @@ pub fn file_empty(file: &str) -> Result<bool, Box<dyn Error>> {
     else {
         return Ok(false)
     }
+}
+
+/// Backs up json to a file in data/json
+/// Filename is named by the person who marked down the data and a timestamp
+pub fn backup_json(json: &str, file: &str) -> Result<(), Box<dyn Error>> {
+    let config = settings::Settings::new()?;
+    let mut file = fs::OpenOptions::new()
+      .write(true)
+      .create(true)
+      .open(format!("{}/{}", &config.stands_data_json, file))
+      .unwrap();
+    
+    let _ = writeln!(file, "{}", format!("{}", json));
+    Ok(())
 }
 
 /// Wipes data.csv

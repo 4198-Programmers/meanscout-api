@@ -4,6 +4,7 @@ debug = false # Do I get rid of this? Not sure if I need it, already have debug 
 logs_dir = "logs/scouting.log"
 pits_data_dir = "data/pits.csv"
 stands_data_dir = "data/data.csv"
+stands_data_json = "data/json" # make sure there is no slashh at the end
 test_data_dir = "data/test.csv"
 
 tls_cert_dir = "/etc/letsencrypt/live/data.team4198.org/fullchain.pem"
