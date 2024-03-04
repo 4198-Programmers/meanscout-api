@@ -130,10 +130,10 @@ pub async fn scouting_post(
 /// Silly http path for pits
 pub async fn pits_post(
     headers: HeaderMap,
-    extract::Json(data): Json<data_utils::Data>,
+    data: string::String,
 ) -> Result<String, StatusCode> {
     tracing::debug!("- Pits data was posted to the server");
-    let config = crate::settings::Settings::new().unwrap();
+    let config = crate::settings::Settings::new().expect("Couldn't get settings");
 
     let test_confirmation = headers.contains_key("x-test");
     let data_directory = if test_confirmation {
@@ -141,9 +141,10 @@ pub async fn pits_post(
     } else {
         config.pits_data_dir
     };
+
     let password = headers["x-pass-key"]
         .to_str()
-        .unwrap_or("NotAtAllACorrectPassword")
+        .unwrap_or("NotAtAllACorrectPassword!!!!! (probably don't edit this)") // Uses the password from the header, if it doesn't exist, it uses a default password that will be wrong
         .to_string();
 
     if authentication(password).is_err() {
@@ -151,64 +152,48 @@ pub async fn pits_post(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
-    let mut owned_string: String = "".to_owned(); // String for later to append to
-    let mut thing: String; // Placeholder string
+    // Adds a backup of the data to a backup file in config.stands_data_json
+    let filename = format!("backup-{}.json", chrono::Local::now().format("%Y-%m-%d-%H-%M-%S"));
+    data_utils::backup_json(&data, &filename).expect("Couldn't backup data");
 
-    let mut hash_vec: Vec<(&String, &Value)> = data.data.iter().collect();
+    let mut json_data: Value = serde_json::from_str(&data).unwrap();
 
-    // Sorts the vector by category
-    hash_vec.sort_by(|a, b| {
-        a.1.as_object()
-            .expect("Failed to turn into object")
-            .get_key_value("category")
-            .expect("Failed to get category")
-            .1
-            .as_str()
-            .expect("Failed to get content")
-            .cmp(
-                b.1.as_object()
-                    .expect("Failed to turn into object")
-                    .get_key_value("category")
-                    .expect("Failed to get category")
-                    .1
-                    .as_str()
-                    .expect("Failed to get content"),
-            )
-    });
+    let new_data = json_data.clone().to_string();
 
-    // Makes the headers if the file is empty
-    if data_utils::file_empty(&data_directory).unwrap() {
+    let flattener = Flattener::new()
+        .set_key_separator(".")
+        .set_array_formatting(ArrayFormatting::Surrounded{
+            start: "[".to_string(),
+            end: "]".to_string()
+        })
+        .set_preserve_empty_arrays(true)
+        .set_preserve_empty_objects(true);
+    let input = new_data.as_bytes();
+    let mut output = Vec::<u8>::new();
+
+    let csv_writer = csv::WriterBuilder::new()
+        .delimiter(b',')
+        .has_headers(false)
+        .from_writer(&mut output);
+    Json2Csv::new(flattener)
+        .convert_from_reader(input, csv_writer)
+        .expect("Couldn't convert csv");
+
+    // If there are no headers, it makes headers
+    if data_utils::file_empty(&data_directory).expect("Couldn't check if file was empty") {
         tracing::info!("File was empty, made headers");
-        let mut header: String = "".to_owned();
-        let mapped: Vec<String> = hash_vec.iter().map(|point| point.0.to_string()).collect();
-        for val in mapped {
-            header.push_str(format!("{},", val).as_str())
-        }
-        let _ = data_utils::append(&header, &data_directory);
+        data_utils::append(&output.lines()
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>().join("\n"), 
+        &data_directory).expect("Couldn't output data to file");
     }
-
-    for i in hash_vec {
-        // Iterates through the list and appends the data to a string
-        thing = format!(
-            "{}, ",
-            i.1.as_object()
-                .unwrap()
-                .get_key_value("content")
-                .expect("Failed to get content")
-                .1
-                .to_string()
-                .replace(",", "")
-        );
-        owned_string.push_str(&thing)
-    }
-
-    // Adds the information to data.csv
-    match data_utils::append(&owned_string, &data_directory) {
-        Ok(_e) => {}
-        Err(error) => {
-            tracing::error!("Uh oh, {}", error);
-            return Err(StatusCode::INTERNAL_SERVER_ERROR);
-        }
+    else {
+        data_utils::append(&output.lines()
+            .skip(1)
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>().join(""),
+            &data_directory
+        ).expect("Couldn't output data to file");
     }
     return Ok("It worked!".into()); // Returns accepted status when done
 }
