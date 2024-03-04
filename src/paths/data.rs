@@ -85,7 +85,6 @@ pub async fn scouting_post(
     }
     json_data["data"].as_object_mut().unwrap().remove("teleop-scoring-2024");   // Removes the list of points scored, as it's no longer needed
     json_data["data"].as_object_mut().unwrap().remove("auto-scoring-2024");     // Removes the list of points scored, as it's no longer needed
-    println!("{}", json_data.to_string());
 
     let new_data = json_data.clone().to_string();
 
